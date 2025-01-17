@@ -25,36 +25,76 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
 
     volOneSlider.setSliderStyle (juce::Slider::RotaryVerticalDrag);
     volOneSlider.setRange (0.0, 1.0, 0.01);
-    volOneSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
-    volOneSlider.setPopupDisplayEnabled (true, false, this);
+    volOneSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
+    volOneSlider.setPopupDisplayEnabled (false, false, this);
     volOneSlider.setValue (0.25);
     addAndMakeVisible (volOneSlider);
 
+    volOneLabel.setText("volume one", juce::dontSendNotification);
+    volOneLabel.attachToComponent(&volOneSlider, true);
+    volOneLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    volOneLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    volOneLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(volOneLabel);
+
     volTwoSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     volTwoSlider.setRange(0.0, 1.0, 0.01);
-    volTwoSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    volTwoSlider.setPopupDisplayEnabled(true, false, this);
+    volTwoSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    volTwoSlider.setPopupDisplayEnabled(false, false, this);
     volTwoSlider.setValue(0.75);
     addAndMakeVisible(volTwoSlider);
 
+    volTwoLabel.setText("volume two", juce::dontSendNotification);
+    volTwoLabel.attachToComponent(&volTwoSlider, true);
+    volTwoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    volTwoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    volTwoLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(volTwoLabel);
+
     totalTimeSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     totalTimeSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
-    totalTimeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    totalTimeSlider.setPopupDisplayEnabled(true, false, this);
+    totalTimeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeSlider.setPopupDisplayEnabled(false, false, this);
     totalTimeSlider.setValue(0.75);
     addAndMakeVisible(totalTimeSlider);
 
+    totalTimeLabel.setText("time", juce::dontSendNotification);
+    totalTimeLabel.attachToComponent(&totalTimeSlider, true);
+    totalTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    totalTimeLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    totalTimeLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(totalTimeLabel);
+
     peakTimeSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     peakTimeSlider.setRange(0.1, 1.0, 0.01);
-    peakTimeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-    peakTimeSlider.setPopupDisplayEnabled(true, false, this);
+    peakTimeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    peakTimeSlider.setPopupDisplayEnabled(false, false, this);
     peakTimeSlider.setValue(0.75);
     addAndMakeVisible(peakTimeSlider);
+
+    peakTimeLabel.setText("peak", juce::dontSendNotification);
+    peakTimeLabel.attachToComponent(&peakTimeSlider, true);
+    peakTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    peakTimeLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    peakTimeLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(peakTimeLabel);
 
     volOneSlider.addListener(this);
     volTwoSlider.addListener(this);
     totalTimeSlider.addListener(this);
     peakTimeSlider.addListener(this);
+
+    // set initial position of the labels
+    auto border = 4;
+    auto area = getLocalBounds();
+    auto labelArea = area.removeFromTop(area.getHeight());
+    auto labelWidth = (labelArea.getWidth() / 4);
+    auto labelHeight = labelArea.getHeight();
+
+    volOneLabel.setBounds(0, 10, labelWidth - border, 30);
+    volTwoLabel.setBounds(labelWidth, 10, labelWidth - border, 30);
+    totalTimeLabel.setBounds(2 * labelWidth, 10, labelWidth - border, 30);
+    peakTimeLabel.setBounds(3 * labelWidth, 10, labelWidth - border, 30);
 
 }
 
@@ -110,5 +150,13 @@ void WavesAudioProcessorEditor::resized()
     totalTimeSlider.setBounds(2 * dialWidth, 0, dialWidth - border, dialHeight - border);
     peakTimeSlider.setBounds(3 * dialWidth, 0, dialWidth - border, dialHeight - border);
 
-    //volTwoSlider.setBounds(dialArea.reduced(border));
+    // TOOD: reduce the size of the control area to fit a display child component above it
+    // TODO: reserve a space for the labels (maybe with removeFrom...)
+
+    auto labelBorder = 4;
+    volOneLabel.setBounds    (labelBorder, 10,                 dialWidth - labelBorder, 30);
+    volTwoLabel.setBounds    (labelBorder + dialWidth, 10,     dialWidth - labelBorder, 30);
+    totalTimeLabel.setBounds (labelBorder + 2 * dialWidth, 10, dialWidth - labelBorder, 30);
+    peakTimeLabel.setBounds  (labelBorder + 3 * dialWidth, 10, dialWidth - labelBorder, 30);
+    
 }

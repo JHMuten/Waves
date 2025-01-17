@@ -114,6 +114,7 @@ private:
 
     //==============================================================================
     juce::Slider volOneSlider, volTwoSlider, totalTimeSlider, peakTimeSlider;
+    juce::Label  volOneLabel,  volTwoLabel,  totalTimeLabel,  peakTimeLabel;
     OtherLookAndFeel wavesLookAndFeel; 
 
     //==============================================================================
