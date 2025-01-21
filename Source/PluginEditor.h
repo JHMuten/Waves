@@ -12,6 +12,36 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
+class VisualComponent : public juce::Component
+{
+public:
+    VisualComponent() {}
+    //~VisualComponent() {};
+    void paint(juce::Graphics&) override;
+    void resized() override;
+    
+private:
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualComponent)
+};
+
+
+//==============================================================================
+class LabelComponent : public juce::Component
+{
+public:
+    LabelComponent();
+    //~LabelComponent() {};
+    void paint(juce::Graphics&) override;
+    void resized() override;
+
+private:
+    juce::Label  volOneLabel, volTwoLabel, totalTimeLabel, peakTimeLabel;
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LabelComponent)
+};
+
+//==============================================================================
 class OtherLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
@@ -111,10 +141,12 @@ public:
 private:
     void sliderValueChanged(juce::Slider* slider) override;
     WavesAudioProcessor& audioProcessor;
+    VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
+    LabelComponent  labelDisplay; // a separate area to label the dials
 
     //==============================================================================
     juce::Slider volOneSlider, volTwoSlider, totalTimeSlider, peakTimeSlider;
-    juce::Label  volOneLabel,  volTwoLabel,  totalTimeLabel,  peakTimeLabel;
+    
     OtherLookAndFeel wavesLookAndFeel; 
 
     //==============================================================================
