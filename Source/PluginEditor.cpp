@@ -11,7 +11,12 @@
 //==============================================================================
 void VisualComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::lightblue);
+    // TODO: Choose colour codes to be more specific and match a colour scheme
+    //g.fillAll(juce::Colours::lightblue);
+    //g.fillAll(juce::Colour (0,0,255));
+
+    // try with HSV
+    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
 
     auto borderThickness = 5;
     g.setColour(juce::Colours::darkgrey);
@@ -61,7 +66,8 @@ LabelComponent::LabelComponent()
 
 void LabelComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::red);
+     // TODO: pick colour from variable
+    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
 }
 
 void LabelComponent::resized()
@@ -164,13 +170,14 @@ void WavesAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
+    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
     //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void WavesAudioProcessorEditor::resized()
 {
 
-    auto dialAspect = 0.4 // ratio of width to height?
+    auto dialAspect = 0.4; // ratio of width to height?
 
     auto border = 4; // TODO: make this relative
     auto area = getLocalBounds();

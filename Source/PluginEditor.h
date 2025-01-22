@@ -42,12 +42,14 @@ private:
 };
 
 //==============================================================================
+//TODO: this class should probably have its own file?
 class OtherLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
     OtherLookAndFeel()
     {
-        setColour(juce::Slider::thumbColourId, juce::Colours::red);
+        //g.fillAll(juce::Colour::fromHSV(0.62f, 0.66f, 0.85f, 1.0f));
+        setColour(juce::Slider::thumbColourId, juce::Colour::fromHSV(0.12f, 1.0f, 0.85f, 1.0f));
     }
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -62,12 +64,13 @@ public:
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
         // fill
-        g.setColour(juce::Colours::orange);
+        g.setColour(secondary);
         g.fillEllipse(rx, ry, rw, rw);
 
         // outline
-        g.setColour(juce::Colours::red);
-        g.drawEllipse(rx, ry, rw, rw, 1.0f);
+        //g.setColour(juce::Colours::red);
+        g.setColour(tertiary);
+        g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
         juce::Path p;
         auto pointerLength = radius * 0.33f;
@@ -76,7 +79,7 @@ public:
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
         // pointer
-        g.setColour(juce::Colours::yellow);
+        g.setColour(tertiary);
         g.fillPath(p);
     }
 
@@ -124,6 +127,10 @@ public:
                 leftIndent + offset, yIndent + offset, textWidth, button.getHeight() - yIndent * 2 - edge,
                 juce::Justification::centred, 2);
     }
+private:
+    juce::Colour primary =   juce::Colour::fromHSV(0.72f, 0.3f, 0.85f, 1.0f); // purple
+    juce::Colour tertiary =  juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // pink
+    juce::Colour secondary = juce::Colour::fromHSV(0.32f, 0.3f, 0.85f, 1.0f); // green
 
 };
 
