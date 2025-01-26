@@ -15,13 +15,32 @@
 class VisualComponent : public juce::Component
 {
 public:
-    VisualComponent() {}
+    VisualComponent();
     //~VisualComponent() {};
     void paint(juce::Graphics&) override;
     void resized() override;
-    
+
+    void setLevels(const int channel, std::vector<float> values);
+
 private:
     //==============================================================================
+    // colour scheme for visual component
+    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
+
+    // parameters for the display
+    float screenLeft;
+    float screenRight;
+    float screenWidth;
+    float screenTop;
+    float screenBottom;
+    float screenHeight;
+
+    // TODO: make this work with both channels (array of vectors, one per channel)
+    // TODO: put the values into the display
+    std::vector<float> displayValues;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualComponent)
 };
 
@@ -37,6 +56,11 @@ public:
 
 private:
     juce::Label  volOneLabel, volTwoLabel, totalTimeLabel, peakTimeLabel;
+
+    // colour scheme for label component
+    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LabelComponent)
 };
@@ -48,8 +72,7 @@ class OtherLookAndFeel : public juce::LookAndFeel_V4
 public:
     OtherLookAndFeel()
     {
-        //g.fillAll(juce::Colour::fromHSV(0.62f, 0.66f, 0.85f, 1.0f));
-        setColour(juce::Slider::thumbColourId, juce::Colour::fromHSV(0.12f, 1.0f, 0.85f, 1.0f));
+        setColour(juce::Slider::thumbColourId, primary);
     }
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -64,12 +87,11 @@ public:
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
         // fill
-        g.setColour(secondary);
+        g.setColour(tertiary);
         g.fillEllipse(rx, ry, rw, rw);
 
         // outline
-        //g.setColour(juce::Colours::red);
-        g.setColour(tertiary);
+        g.setColour(secondary);
         g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
         juce::Path p;
@@ -79,7 +101,7 @@ public:
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
         // pointer
-        g.setColour(tertiary);
+        g.setColour(secondary);
         g.fillPath(p);
     }
 
@@ -128,14 +150,15 @@ public:
                 juce::Justification::centred, 2);
     }
 private:
-    juce::Colour primary =   juce::Colour::fromHSV(0.72f, 0.3f, 0.85f, 1.0f); // purple
-    juce::Colour tertiary =  juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // pink
-    juce::Colour secondary = juce::Colour::fromHSV(0.32f, 0.3f, 0.85f, 1.0f); // green
+    // colour scheme for look and feel
+    juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV (0.575f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary =  juce::Colour::fromHSV (0.075f, 0.8f, 1.0f, 1.0f); // orange
 
 };
 
 //============================================================================
-class WavesAudioProcessorEditor  : public juce::AudioProcessorEditor, private juce::Slider::Listener
+class WavesAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer, private juce::Slider::Listener
 {
 public:
     WavesAudioProcessorEditor (WavesAudioProcessor&);
@@ -145,11 +168,20 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    float v1, v2, tt, pt;
+    void timerCallback() override;
+
 private:
     void sliderValueChanged(juce::Slider* slider) override;
     WavesAudioProcessor& audioProcessor;
     VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
     LabelComponent  labelDisplay; // a separate area to label the dials
+
+
+    // colour scheme for the editor
+    juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV (0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary =  juce::Colour::fromHSV (0.075f, 0.3f, 0.85f, 1.0f); // orange
 
     //==============================================================================
     juce::Slider volOneSlider, volTwoSlider, totalTimeSlider, peakTimeSlider;

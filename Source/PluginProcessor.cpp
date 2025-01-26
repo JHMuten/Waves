@@ -129,7 +129,7 @@ bool WavesAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void WavesAudioProcessor::updateParameters(double v1, double v2, double trt, double prt)
+void WavesAudioProcessor::updateParameters(float v1, float v2, float trt, float prt)
 {
     // this is only here to convert the gui params
     // to wave params
@@ -203,4 +203,14 @@ void WavesAudioProcessor::setStateInformation (const void* data, int sizeInBytes
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new WavesAudioProcessor();
+}
+
+std::vector<float> WavesAudioProcessor::getFunctionValues(const int channel)
+{
+    jassert(channel == 0 || channel == 1);
+    if (channel == 0)
+        return myWaves.getAnyWaveArray(channel);
+    if (channel == 1)
+        return myWaves.getAnyWaveArray(channel);
+    return myWaves.getAnyWaveArray(channel); // TODO: error handling :)
 }

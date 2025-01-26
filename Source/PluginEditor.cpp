@@ -9,14 +9,31 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 //==============================================================================
+
+VisualComponent::VisualComponent()
+{
+    screenLeft = getWidth() / 4;
+    screenRight = getWidth() * 3 / 4;
+    screenWidth = screenRight - screenLeft;
+    screenTop = getHeight() / 5;
+    screenBottom = getHeight() * 4 / 5;
+    screenHeight = screenBottom - screenTop;
+
+    // initialise the function vector 
+    displayValues = { 0.0f, 1.0f };
+
+    //DBG(" ");
+    //DBG(" ");
+    //DBG(" ");
+    //DBG("initialised VC");
+    //DBG(" ");
+    //DBG(" ");
+    //DBG(" ");
+}
 void VisualComponent::paint(juce::Graphics& g)
 {
-    // TODO: Choose colour codes to be more specific and match a colour scheme
-    //g.fillAll(juce::Colours::lightblue);
-    //g.fillAll(juce::Colour (0,0,255));
-
-    // try with HSV
-    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
+    // background colour
+    g.fillAll(primary);
 
     auto borderThickness = 5;
     g.setColour(juce::Colours::darkgrey);
@@ -25,13 +42,73 @@ void VisualComponent::paint(juce::Graphics& g)
                getWidth()  * 0.5 + 2 * borderThickness, 
                getHeight() * 0.6 + 2 * borderThickness);
 
+
     g.setColour(juce::Colours::grey);
-    g.fillRect( getWidth() / 4,  getHeight() / 5, getWidth() * 0.5, getHeight() * 0.6);
+    g.fillRect( screenLeft,  screenTop, screenWidth, screenHeight);
+
+    // TODO: get values from the dials
+    //       and use the params as a fraction of screen size
+    g.setColour (juce::Colours::green); 
+
+    auto lineThickness = 2;
+       
+    // loop over elements of the displayValues
+    int numValues = std::size(displayValues);
+    int numPlotPoints = 100;
+    int currentPoint, prevPoint;
+
+    juce::Path path;
+    path.startNewSubPath(screenLeft, screenBottom - displayValues[0] * screenHeight);
+
+
+    // TODO: make sure the last element is included
+    // TODO: multi-channel controls and display
+    // TODO: check referencing is done correctly
+
+    for (int i = 1; i < numPlotPoints; i++)
+    {
+        currentPoint = i * numValues / numPlotPoints;
+    
+        path.lineTo(screenLeft + i * screenWidth / numPlotPoints,
+                    screenBottom - displayValues[currentPoint] * screenHeight);
+
+        //g.drawLine(screenLeft + (i-1) * screenWidth / numPlotPoints,
+        //    screenBottom - displayValues[prevPoint] * screenHeight,
+        //    screenLeft + i/numPlotPoints * screenWidth,
+        //    screenBottom - displayValues[currentPoint] * screenHeight,
+        //    lineThickness);
+        
+    }
+
+    g.strokePath(path, juce::PathStrokeType(lineThickness));
+
+    // draw from element 0 to halfway through the list
+    //g.drawLine(screenLeft,
+    //           screenBottom, 
+    //           screenLeft + 0.5 * screenWidth,
+    //           screenBottom - displayValues[numValues-1] * screenHeight,
+    //           lineThickness);
+
+    //DBG(" ");
+     
+    //displayPath.closeSubPath();
+    //g.strokePath(displayPath, juce::PathStrokeType(2.0f));
+
 }
 
 void VisualComponent::resized()
 {
+    screenLeft = getWidth() / 4;
+    screenRight = getWidth() * 3 / 4;
+    screenWidth = screenRight - screenLeft;
+    screenTop = getHeight() / 5;
+    screenBottom = getHeight() * 4 / 5;
+    screenHeight = screenBottom - screenTop;
+}
 
+void VisualComponent::setLevels(const int channel, std::vector<float> values)
+{
+    displayValues = values;
 }
 
 LabelComponent::LabelComponent()
@@ -67,7 +144,7 @@ LabelComponent::LabelComponent()
 void LabelComponent::paint(juce::Graphics& g)
 {
      // TODO: pick colour from variable
-    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
+    g.fillAll(primary);
 }
 
 void LabelComponent::resized()
@@ -132,28 +209,48 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     totalTimeSlider.addListener(this);
     peakTimeSlider.addListener(this);
 
-    // set initial position of the labels
-    labelDisplay.setBounds(0,getHeight() * 0.4, getWidth(), getHeight() * 0.1);
-    addAndMakeVisible(labelDisplay);
+    auto dialAspect = 4; // ratio of width to height?
+    auto border = 4; // TODO: make this relative
+    auto area = getLocalBounds();
+    auto dialWidth = getWidth() / 4;
+    auto dialHeight = getWidth() / dialAspect;
+    auto controlsHeight = getHeight() - dialHeight;
 
-    // set initial position of the screen
-    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.4);
+    volOneSlider.setBounds(0, controlsHeight, dialWidth - border, dialHeight - border);
+    volTwoSlider.setBounds(dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
+    totalTimeSlider.setBounds(2 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
+    peakTimeSlider.setBounds(3 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
+
+    // strip showing the dial labels, should always be just above the dial area
+    labelDisplay.setBounds(0, getHeight() * 0.9 - dialHeight, getWidth(), getHeight() * 0.1);
+    addAndMakeVisible(labelDisplay);
+    // display area - fills the top half of the screen
+    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.9 - dialHeight);
     addAndMakeVisible(wavesDisplay);
 
+    // timer stuff
+    startTimerHz(24);
 }
 
 WavesAudioProcessorEditor::~WavesAudioProcessorEditor()
 {
+    setLookAndFeel(nullptr);
+
 }
 
 //==============================================================================
 void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
     // Use this classes' sliders to set variables in the audioProcessor class (in PluginProcessor)
-    audioProcessor.volOne = volOneSlider.getValue();
-    audioProcessor.volTwo = volTwoSlider.getValue();
-    audioProcessor.totalRampTime = totalTimeSlider.getValue();
-    audioProcessor.peakRampTime = peakTimeSlider.getValue() * audioProcessor.totalRampTime; // peak as a fraction of total
+    v1 = volOneSlider.getValue();
+    v2 = volTwoSlider.getValue();
+    tt = totalTimeSlider.getValue();
+    pt = peakTimeSlider.getValue() * tt; // peak as a fraction of total
+
+    audioProcessor.volOne = v1;
+    audioProcessor.volTwo = v2;
+    audioProcessor.totalRampTime = tt;
+    audioProcessor.peakRampTime = pt;
 
     // function to update the waves class
     audioProcessor.updateParameters(audioProcessor.volOne,
@@ -165,28 +262,21 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 //==============================================================================
 void WavesAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
-    g.fillAll(juce::Colour::fromHSV(0.72f, 0.5f, 0.85f, 1.0));
-    //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.fillAll(primary);
 }
 
 void WavesAudioProcessorEditor::resized()
 {
 
-    auto dialAspect = 0.4; // ratio of width to height?
+    auto dialAspect = 4; // ratio of width to height?
 
     auto border = 4; // TODO: make this relative
     auto area = getLocalBounds();
-    auto controlsHeight = getHeight() / 2;
-    auto dialArea = area.removeFromTop(area.getHeight()/2);
-    auto dialWidth = (dialArea.getWidth() / 4);
-    auto dialHeight = dialArea.getHeight();
-
-    // TODO: set aspect ratio of the dials so they never go too small
+    auto dialWidth = getWidth() / 4;
+    auto dialHeight = getWidth() / dialAspect;
+    auto controlsHeight = getHeight() - dialHeight;
 
     volOneSlider.setBounds(0, controlsHeight, dialWidth - border, dialHeight - border);
     volTwoSlider.setBounds(dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
@@ -194,8 +284,14 @@ void WavesAudioProcessorEditor::resized()
     peakTimeSlider.setBounds(3 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
 
     // strip showing the dial labels, should always be just above the dial area
-    labelDisplay.setBounds(0, getHeight() * 0.4, getWidth(), getHeight() * 0.1);
+    labelDisplay.setBounds(0, getHeight() * 0.9 - dialHeight, getWidth(), getHeight() * 0.1);
 
     // display area - fills the top half of the screen
-    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.4); 
+    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.9 - dialHeight); 
+}
+
+void WavesAudioProcessorEditor::timerCallback()
+{
+    wavesDisplay.setLevels(0, audioProcessor.getFunctionValues(0)); // get the function values 
+    wavesDisplay.repaint();
 }

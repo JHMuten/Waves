@@ -9,12 +9,12 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <algorithm>
 
 template <typename Type>
 class WaveArray
 {
 public:
-    // note that delayLine from the tutorial has no constructor
     WaveArray()
     {
         resize(1);// minimum size set on construction?
@@ -55,6 +55,14 @@ public:
         return output;
     }
 
+    std::vector<Type>& getWaveArray()// passing as a reference now
+    {
+        // returns all elements of the wave array
+        //std::vector<float> output;
+        //output = waveArray;
+        return waveArray; // copy of the array so stuff doesnt get overridden
+    }
+
     /** Set the specified sample in the delay line */
     void set(size_t waveSample, Type newValue) noexcept
     {
@@ -82,11 +90,12 @@ private:
     void linearFunction()
     {
         // fill the array with linear ramps from v1(0) -> v2(t1) -> v1(t2)
+        // this is currently done in the Waves (plural) object
     }
 };
 //==============================================================================
 
-template <typename Type, size_t maxNumChannels = 2>
+template <typename Type, int maxNumChannels = 2>
 class Waves
 {
 public:
@@ -109,7 +118,7 @@ public:
     void prepare (const juce::dsp::ProcessSpec& spec)
     {
         jassert (spec.numChannels <= maxNumChannels);
-        sampleRate = (double) spec.sampleRate;
+        sampleRate = (float) spec.sampleRate;
         updateWaveArraySize(0);
         updateWaveArraySize(1);
         //updateWaveTime();
@@ -124,37 +133,37 @@ public:
         }
     }
 
-    size_t getNumChannels() const noexcept
+    int getNumChannels() const noexcept
     {
         return waveArrays.size();
     }
 
-    Type get(size_t channel, size_t sample)
+    float get(int channel, int sample)
     {
         // returns a volume
         // TODO: jassert myself
         return waveArrays[channel].get(sample);
     }
 
-    Type getNext(size_t channel)
+    float getNext(int channel)
     {
         return waveArrays[channel].getNext();
     }
 
-    void setVolumeOne(size_t channel, Type newValue)
+    void setVolumeOne(int channel, float newValue)
     {
-        jassert(newValue >= Type(0));
+        jassert(newValue >= float(0));
         volumeOne[channel] = newValue;
         // update function
     }
-    void setVolumeTwo(size_t channel, Type newValue)
+    void setVolumeTwo(int channel, float newValue)
     {
-        jassert(newValue >= Type(0));
+        jassert(newValue >= float(0));
         volumeTwo[channel] = newValue;
         // update function
     }
 
-    void setMaxWaveTime(size_t channel, Type newValue)
+    void setMaxWaveTime(int channel, float newValue)
     {
         if (channel >= getNumChannels())
         {
@@ -167,7 +176,7 @@ public:
         updateMaxWaveTime(channel); // converts the new wave time in seconds to samples
         updateWaveArraySize(channel);
     }
-    void setMidWaveTime(size_t channel, Type newValue)
+    void setMidWaveTime(int channel, float newValue)
     {
         if (channel >= getNumChannels())
         {
@@ -185,33 +194,41 @@ public:
         linearFunction();
     }
 
+    std::vector<float>& getAnyWaveArray(const int channel)
+    {
+        return waveArrays[channel].getWaveArray();
+    }
+
 private:
+    //const int maxNumChannels = 2;
+
+    // Wave array for each channel
     std::array<WaveArray<Type>, maxNumChannels> waveArrays;
     
     // End time 
-    std::array<size_t, maxNumChannels> maxWaveTimesSample;     
-    std::array<Type, maxNumChannels> maxWaveTimes;         
+    std::array<int, maxNumChannels> maxWaveTimesSample;     
+    std::array<float, maxNumChannels> maxWaveTimes;         
 
     // Mid time
-    std::array<size_t, maxNumChannels> midWaveTimesSample;
-    std::array<Type, maxNumChannels> midWaveTimes;
+    std::array<int, maxNumChannels> midWaveTimesSample;
+    std::array<float, maxNumChannels> midWaveTimes;
 
     // Volume arrays: currently not being set
-    std::array<Type, maxNumChannels> volumeOne;
-    std::array<Type, maxNumChannels> volumeTwo;
+    std::array<float, maxNumChannels> volumeOne;
+    std::array<float, maxNumChannels> volumeTwo;
 
     // this is the only one that's channel independent
-    Type sampleRate{ Type(44.1e3) };
+    float sampleRate{ float(44.1e3) };
 
-    void updateWaveArraySize(size_t channel) // TODO: fix
+    void updateWaveArraySize(int channel) // TODO: fix
     {
-        auto waveArraySizeSamples = (size_t)std::ceil(maxWaveTimes[channel] * sampleRate);
+        auto waveArraySizeSamples = (int)std::ceil(maxWaveTimes[channel] * sampleRate);
         waveArrays[channel].resize(waveArraySizeSamples);
     }
 
-    void updateMaxWaveTime(size_t channel) noexcept
+    void updateMaxWaveTime(int channel) noexcept
     {
-        maxWaveTimesSample[channel] = (size_t)juce::roundToInt(maxWaveTimes[channel] * sampleRate);
+        maxWaveTimesSample[channel] = (int)juce::roundToInt(maxWaveTimes[channel] * sampleRate);
     }
 
     void updateMidWaveTime(size_t channel) noexcept
@@ -221,23 +238,22 @@ private:
 
     void linearFunction()
     {
-        for (size_t ch = 0; ch < maxNumChannels; ch++)
+        for (int ch = 0; ch < maxNumChannels; ch++)
         {
-            Type volIncrement, volReduction;
+            float volIncrement, volReduction;
             volIncrement = (volumeTwo[ch] - volumeOne[ch]) / midWaveTimesSample[ch];
 
-            for (size_t i = 0; i < midWaveTimesSample[ch]; i++)
+            for (int i = 0; i < midWaveTimesSample[ch]; i++)
             {
-                Type value = volumeOne[ch] + i * volIncrement;
+                float value = volumeOne[ch] + i * volIncrement;
                 waveArrays[ch].set( i, value );
             }
             volReduction = (volumeTwo[ch] - volumeOne[ch]) / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
-            for (size_t i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+            for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
             {
-                Type value = volumeTwo[ch] - (i - midWaveTimesSample[ch]) * volReduction;
+                float value = volumeTwo[ch] - (i - midWaveTimesSample[ch]) * volReduction;
                 waveArrays[ch].set( i, value );
             }
-
         }
     }
 };
@@ -285,16 +301,17 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void updateParameters(double v1, double v2, double trt, double prt);
+    void updateParameters(float v1, float v2, float trt, float prt);
+    std::vector<float> getFunctionValues(const int channel);
 
     //==============================================================================
     // UI controls:
-    double volOne = 0.25, volTwo = 0.75;
-    double totalRampTime = 2.0, peakRampTime = 1.0;
+    float volOne = 0.25, volTwo = 0.75;
+    float totalRampTime = 2.0, peakRampTime = 1.0;
     
-    double mSampleRate = 1;
+    float mSampleRate = 1;
     int totalSamples = 1, peakSamples = 1; 
-    Waves<double> myWaves; // one instance of the waves class
+    Waves<float> myWaves; // one instance of the waves class
 
 private:
     //==============================================================================
