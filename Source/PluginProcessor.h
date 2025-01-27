@@ -10,7 +10,9 @@
 
 #include <JuceHeader.h>
 #include <algorithm>
+#include <cmath>
 
+// TODO: put waves in its own separate file
 template <typename Type>
 class WaveArray
 {
@@ -86,12 +88,6 @@ private:
     size_t offset = 0;           // to shift the waveArray away from 0 time
     size_t leastRecentIndex = 0; // to track which sample has just been used (deprecated)
     size_t currentSample = 0;    // trying to auto return
-
-    void linearFunction()
-    {
-        // fill the array with linear ramps from v1(0) -> v2(t1) -> v1(t2)
-        // this is currently done in the Waves (plural) object
-    }
 };
 //==============================================================================
 
@@ -191,7 +187,8 @@ public:
 
     void updateFunctions()
     {
-        linearFunction();
+        //linearFunction();
+        sineFunction();
     }
 
     std::vector<float>& getAnyWaveArray(const int channel)
@@ -200,8 +197,6 @@ public:
     }
 
 private:
-    //const int maxNumChannels = 2;
-
     // Wave array for each channel
     std::array<WaveArray<Type>, maxNumChannels> waveArrays;
     
@@ -236,6 +231,8 @@ private:
         midWaveTimesSample[channel] = (size_t)juce::roundToInt(midWaveTimes[channel] * sampleRate);
     }
 
+    // TODO: channel variable
+    // TODO: split pre- and post-max ramps
     void linearFunction()
     {
         for (int ch = 0; ch < maxNumChannels; ch++)
@@ -255,6 +252,48 @@ private:
                 waveArrays[ch].set( i, value );
             }
         }
+    }
+
+    void sineFunction()
+    {
+        // rise to the peak like the first part of a cosine graph,
+        // and return using the mirror
+
+        constexpr double pi = 3.14159265358979323846;
+        float cosArg;
+        float value;
+        float sign = -1.0;
+
+        for (int ch = 0; ch < maxNumChannels; ch++)
+        {
+            // check which of v1 and v2 is larger
+            if (volumeOne[ch] > volumeTwo[ch])
+            {
+                sign *= -1.0f;
+            }
+            
+            for (int i = 0; i < maxWaveTimesSample[ch]; i++)
+            {
+                cosArg = i * 2.0f * pi / maxWaveTimesSample[ch];
+                value = std::cos(cosArg); // between 0 and 1
+                value *= sign; // invert if v1 > v2
+                value = (value + 1) / 2; // between 0 and 1
+                value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+                value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+
+                waveArrays[ch].set(i, value);
+            }
+
+            // second part, after the 'peak'
+            //for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+            //{
+            //    cosArg = i * M_PI / midWaveTimesSample[i];
+            //    value = std::cos(cosArg);
+            //    waveArrays[ch].set(i, value);
+            //}
+        }
+
+
     }
 };
 
