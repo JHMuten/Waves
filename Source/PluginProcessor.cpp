@@ -129,18 +129,15 @@ bool WavesAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void WavesAudioProcessor::updateParameters(float v1, float v2, float trt, float prt, int first, int second)
+void WavesAudioProcessor::updateParameters(int channel, float v1, float v2, float trt, float prt, int first, int second)
 {
-    // this is only here to convert the gui params
-    // to wave params
-    for (int i = 0; i < 2; i++)
-    {
-        myWaves.setVolumeOne(i, v1);
-        myWaves.setVolumeTwo(i, v2);
-        myWaves.setMaxWaveTime(i, trt);
-        myWaves.setMidWaveTime(i, prt);
-    }
-    myWaves.updateFunctions(first, second);
+    // this is only here to convert the gui params to wave params
+    myWaves.setVolumeOne (channel, v1);
+    myWaves.setVolumeTwo (channel, v2);
+    myWaves.setMaxWaveTime (channel, trt);
+    myWaves.setMidWaveTime (channel, prt);
+   
+    myWaves.updateFunctions(channel, first, second);
 }
 
 

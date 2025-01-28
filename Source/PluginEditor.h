@@ -37,9 +37,7 @@ private:
     float screenBottom;
     float screenHeight;
 
-    // TODO: make this work with both channels (array of vectors, one per channel)
-    // TODO: put the values into the display
-    std::vector<float> displayValues;
+    std::vector<std::vector<float>> displayValues{{0, 1}, { 0,1 }};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualComponent)
 };
@@ -168,7 +166,10 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    float v1, v2, tt, pt, fft, sft;
+    // volumes, total / peak times, first / second functions for left and right channels
+    float v1L, v2L, ttL, ptL, ffL, sfL;
+    float v1R, v2R, ttR, ptR, ffR, sfR;
+    int stereo = 0;
     void timerCallback() override;
 
 private:
@@ -183,8 +184,11 @@ private:
     juce::Colour tertiary =  juce::Colour::fromHSV (0.075f, 0.3f, 0.85f, 1.0f); // orange
 
     //==============================================================================
-    juce::Slider volOneSlider, volTwoSlider, totalTimeSlider, peakTimeSlider;
-    juce::Slider firstFunctionSlider, secondFunctionSlider;
+    juce::Slider volOneLeftSlider, volTwoLeftSlider, totalTimeLeftSlider, peakTimeLeftSlider;
+    juce::Slider volOneRightSlider, volTwoRightSlider, totalTimeRightSlider, peakTimeRightSlider;
+    juce::Slider firstFunctionLeftSlider, secondFunctionLeftSlider;
+    juce::Slider firstFunctionRightSlider, secondFunctionRightSlider;
+    juce::Slider monoStereoSelector;
 
     OtherLookAndFeel wavesLookAndFeel; 
 

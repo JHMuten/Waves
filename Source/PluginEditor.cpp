@@ -20,15 +20,10 @@ VisualComponent::VisualComponent()
     screenHeight = screenBottom - screenTop;
 
     // initialise the function vector 
-    displayValues = { 0.0f, 1.0f };
+    displayValues[0] = { 0.0f, 1.0f }; // might not work idk
+    displayValues[1] = { 0.0f, 1.0f }; // might not work idk
+    //displayValuesRight = { 0.0f, 1.0f };
 
-    //DBG(" ");
-    //DBG(" ");
-    //DBG(" ");
-    //DBG("initialised VC");
-    //DBG(" ");
-    //DBG(" ");
-    //DBG(" ");
 }
 void VisualComponent::paint(juce::Graphics& g)
 {
@@ -46,54 +41,34 @@ void VisualComponent::paint(juce::Graphics& g)
     g.setColour(juce::Colours::grey);
     g.fillRect( screenLeft,  screenTop, screenWidth, screenHeight);
 
-    // TODO: get values from the dials
-    //       and use the params as a fraction of screen size
-    g.setColour (juce::Colours::green); 
-
     auto lineThickness = 2;
        
     // loop over elements of the displayValues
-    int numValues = std::size(displayValues);
+    int numValuesLeft = std::size(displayValues[0]);
+    int numValuesRight = std::size(displayValues[1]);
     int numPlotPoints = 100;
-    int currentPoint, prevPoint;
+    int currentPointLeft, currentPointRight;
 
-    juce::Path path;
-    path.startNewSubPath(screenLeft, screenBottom - displayValues[0] * screenHeight);
-
-
-    // TODO: make sure the last element is included
-    // TODO: multi-channel controls and display
-    // TODO: check referencing is done correctly
+    juce::Path pathLeft, pathRight; // draw the volumes for the left and right channels
+    pathLeft.startNewSubPath(screenLeft, screenBottom - displayValues[0][0] * screenHeight);
+    pathRight.startNewSubPath(screenLeft, screenBottom - displayValues[1][0] * screenHeight);
 
     for (int i = 1; i < numPlotPoints; i++)
     {
-        currentPoint = i * numValues / numPlotPoints;
-    
-        path.lineTo(screenLeft + i * screenWidth / numPlotPoints,
-                    screenBottom - displayValues[currentPoint] * screenHeight);
+        currentPointLeft = i * numValuesLeft / numPlotPoints;
+        currentPointRight= i * numValuesRight / numPlotPoints;
 
-        //g.drawLine(screenLeft + (i-1) * screenWidth / numPlotPoints,
-        //    screenBottom - displayValues[prevPoint] * screenHeight,
-        //    screenLeft + i/numPlotPoints * screenWidth,
-        //    screenBottom - displayValues[currentPoint] * screenHeight,
-        //    lineThickness);
-        
+        pathLeft.lineTo(screenLeft + i * screenWidth / numPlotPoints,
+                        screenBottom - displayValues[0][currentPointLeft] * screenHeight);
+        pathRight.lineTo(screenLeft + i * screenWidth / numPlotPoints,
+                         screenBottom - displayValues[1][currentPointRight] * screenHeight);
     }
+    
+    g.setColour(primary);
+    g.strokePath(pathLeft, juce::PathStrokeType(lineThickness));
 
-    g.strokePath(path, juce::PathStrokeType(lineThickness));
-
-    // draw from element 0 to halfway through the list
-    //g.drawLine(screenLeft,
-    //           screenBottom, 
-    //           screenLeft + 0.5 * screenWidth,
-    //           screenBottom - displayValues[numValues-1] * screenHeight,
-    //           lineThickness);
-
-    //DBG(" ");
-     
-    //displayPath.closeSubPath();
-    //g.strokePath(displayPath, juce::PathStrokeType(2.0f));
-
+    g.setColour(tertiary);
+    g.strokePath(pathRight, juce::PathStrokeType(lineThickness));
 }
 
 void VisualComponent::resized()
@@ -108,7 +83,7 @@ void VisualComponent::resized()
 
 void VisualComponent::setLevels(const int channel, std::vector<float> values)
 {
-    displayValues = values;
+    displayValues[channel] = values;
 }
 
 LabelComponent::LabelComponent()
@@ -176,54 +151,114 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     setResizeLimits(100, 100, displayWidth, displayHeight);
     setSize (400, 300);
 
-    volOneSlider.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-    volOneSlider.setRange (0.0, 1.0, 0.01);
-    volOneSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
-    volOneSlider.setPopupDisplayEnabled (false, false, this);
-    volOneSlider.setValue (0.25);
-    addAndMakeVisible (volOneSlider);
+    // LEFT CHANNEL SLIDERS
+    volOneLeftSlider.setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    volOneLeftSlider.setRange (0.0, 1.0, 0.01);
+    volOneLeftSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
+    volOneLeftSlider.setPopupDisplayEnabled (false, false, this);
+    volOneLeftSlider.setValue (0.25);
+    addAndMakeVisible (volOneLeftSlider);
 
-    volTwoSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    volTwoSlider.setRange(0.0, 1.0, 0.01);
-    volTwoSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    volTwoSlider.setPopupDisplayEnabled(false, false, this);
-    volTwoSlider.setValue(0.75);
-    addAndMakeVisible(volTwoSlider);
+    volTwoLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    volTwoLeftSlider.setRange(0.0, 1.0, 0.01);
+    volTwoLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    volTwoLeftSlider.setPopupDisplayEnabled(false, false, this);
+    volTwoLeftSlider.setValue(0.75);
+    addAndMakeVisible(volTwoLeftSlider);
 
-    totalTimeSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
-    totalTimeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    totalTimeSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeSlider.setValue(0.75);
-    addAndMakeVisible(totalTimeSlider);
+    totalTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    totalTimeLeftSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
+    totalTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
+    totalTimeLeftSlider.setValue(0.75);
+    addAndMakeVisible(totalTimeLeftSlider);
 
-    peakTimeSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    peakTimeSlider.setRange(0.1, 1.0, 0.01);
-    peakTimeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    peakTimeSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeSlider.setValue(0.75);
-    addAndMakeVisible(peakTimeSlider);
+    peakTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    peakTimeLeftSlider.setRange(0.1, 1.0, 0.01);
+    peakTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    peakTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
+    peakTimeLeftSlider.setValue(0.75);
+    addAndMakeVisible(peakTimeLeftSlider);
 
-    firstFunctionSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    firstFunctionSlider.setRange(1, 2, 1);
-    firstFunctionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    firstFunctionSlider.setPopupDisplayEnabled(false, false, this);
-    firstFunctionSlider.setValue(1);
-    addAndMakeVisible(firstFunctionSlider);
+    firstFunctionLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    firstFunctionLeftSlider.setRange(1, 2, 1);
+    firstFunctionLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    firstFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
+    firstFunctionLeftSlider.setValue(1);
+    addAndMakeVisible(firstFunctionLeftSlider);
 
-    secondFunctionSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    secondFunctionSlider.setRange(1, 2, 1);
-    secondFunctionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    secondFunctionSlider.setPopupDisplayEnabled(false, false, this);
-    secondFunctionSlider.setValue(1);
-    addAndMakeVisible(secondFunctionSlider);
+    secondFunctionLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    secondFunctionLeftSlider.setRange(1, 2, 1);
+    secondFunctionLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    secondFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
+    secondFunctionLeftSlider.setValue(1);
+    addAndMakeVisible(secondFunctionLeftSlider);
 
-    volOneSlider.addListener(this);
-    volTwoSlider.addListener(this);
-    totalTimeSlider.addListener(this);
-    peakTimeSlider.addListener(this);
-    firstFunctionSlider.addListener(this);
-    secondFunctionSlider.addListener(this);
+    // RIGHT CHANNEL SLIDERS
+    volOneRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    volOneRightSlider.setRange(0.0, 1.0, 0.01);
+    volOneRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    volOneRightSlider.setPopupDisplayEnabled(false, false, this);
+    volOneRightSlider.setValue(0.25);
+    addAndMakeVisible(volOneRightSlider);
+
+    volTwoRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    volTwoRightSlider.setRange(0.0, 1.0, 0.01);
+    volTwoRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    volTwoRightSlider.setPopupDisplayEnabled(false, false, this);
+    volTwoRightSlider.setValue(0.75);
+    addAndMakeVisible(volTwoRightSlider);
+
+    totalTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    totalTimeRightSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
+    totalTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeRightSlider.setPopupDisplayEnabled(false, false, this);
+    totalTimeRightSlider.setValue(0.75);
+    addAndMakeVisible(totalTimeRightSlider);
+
+    peakTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    peakTimeRightSlider.setRange(0.1, 1.0, 0.01);
+    peakTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    peakTimeRightSlider.setPopupDisplayEnabled(false, false, this);
+    peakTimeRightSlider.setValue(0.75);
+    addAndMakeVisible(peakTimeRightSlider);
+
+    firstFunctionRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    firstFunctionRightSlider.setRange(1, 2, 1);
+    firstFunctionRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    firstFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
+    firstFunctionRightSlider.setValue(1);
+    addAndMakeVisible(firstFunctionRightSlider);
+
+    secondFunctionRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    secondFunctionRightSlider.setRange(1, 2, 1);
+    secondFunctionRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    secondFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
+    secondFunctionRightSlider.setValue(1);
+    addAndMakeVisible(secondFunctionRightSlider);
+
+    monoStereoSelector.setSliderStyle(juce::Slider::LinearHorizontal);
+    monoStereoSelector.setRange(0, 1, 1);
+    monoStereoSelector.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    monoStereoSelector.setPopupDisplayEnabled(false, false, this);
+    monoStereoSelector.setValue(0);
+    addAndMakeVisible(monoStereoSelector);
+
+    volOneLeftSlider.addListener(this);
+    volTwoLeftSlider.addListener(this);
+    totalTimeLeftSlider.addListener(this);
+    peakTimeLeftSlider.addListener(this);
+    firstFunctionLeftSlider.addListener(this);
+    secondFunctionLeftSlider.addListener(this);
+
+    volOneRightSlider.addListener(this);
+    volTwoRightSlider.addListener(this);
+    totalTimeRightSlider.addListener(this);
+    peakTimeRightSlider.addListener(this);
+    firstFunctionRightSlider.addListener(this);
+    secondFunctionRightSlider.addListener(this);
+
+    monoStereoSelector.addListener(this);
 
     addAndMakeVisible(labelDisplay);
     addAndMakeVisible(wavesDisplay);
@@ -241,25 +276,72 @@ WavesAudioProcessorEditor::~WavesAudioProcessorEditor()
 //==============================================================================
 void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
-    // Use this classes' sliders to set variables in the audioProcessor class (in PluginProcessor)
-    v1 = volOneSlider.getValue();
-    v2 = volTwoSlider.getValue();
-    tt = totalTimeSlider.getValue();
-    pt = peakTimeSlider.getValue() * tt; // peak as a fraction of total
-    fft = firstFunctionSlider.getValue();
-    sft = secondFunctionSlider.getValue();
+    stereo = monoStereoSelector.getValue();
 
-    audioProcessor.volOne = v1;
-    audioProcessor.volTwo = v2;
-    audioProcessor.totalRampTime = tt;
-    audioProcessor.peakRampTime = pt;
+
+    // Use this classes' sliders to set variables in the audioProcessor class (in PluginProcessor)
+    v1L = volOneLeftSlider.getValue();
+    v2L = volTwoLeftSlider.getValue();
+    ttL = totalTimeLeftSlider.getValue();
+    ptL = peakTimeLeftSlider.getValue() * ttL;
+    ffL = firstFunctionLeftSlider.getValue();
+    sfL = secondFunctionLeftSlider.getValue();
+
+    if (stereo == 0)
+    {
+        volOneRightSlider.setVisible(false);
+        volTwoRightSlider.setVisible(false);
+        totalTimeRightSlider.setVisible(false);
+        peakTimeRightSlider.setVisible(false);
+        firstFunctionRightSlider.setVisible(false);
+        secondFunctionRightSlider.setVisible(false);
+
+        v1R = v1L;
+        v2R = v2L;
+        ttR = ttL;
+        ptR = ptL;
+        ffR = ffL;
+        sfR = sfL;
+    }
+    else if (stereo == 1)
+    {
+        volOneRightSlider.setVisible(true);
+        volTwoRightSlider.setVisible(true);
+        totalTimeRightSlider.setVisible(true);
+        peakTimeRightSlider.setVisible(true);
+        firstFunctionRightSlider.setVisible(true);
+        secondFunctionRightSlider.setVisible(true);
+
+        v1R = volOneRightSlider.getValue();
+        v2R = volTwoRightSlider.getValue();
+        ttR = totalTimeRightSlider.getValue();
+        ptR = peakTimeRightSlider.getValue() * ttR;
+        ffR = firstFunctionRightSlider.getValue();
+        sfR = secondFunctionRightSlider.getValue();
+    }
+
+    audioProcessor.volOneLeft = v1L;
+    audioProcessor.volTwoLeft = v2L;
+    audioProcessor.totalRampTimeLeft = ttL;
+    audioProcessor.peakRampTimeLeft = ptL;
+
+    audioProcessor.volOneRight = v1R;
+    audioProcessor.volTwoRight = v2R;
+    audioProcessor.totalRampTimeRight = ttR;
+    audioProcessor.peakRampTimeRight = ptR;
 
     // function to update the waves class
-    audioProcessor.updateParameters(audioProcessor.volOne,
-                                    audioProcessor.volTwo,
-                                    audioProcessor.totalRampTime,
-                                    audioProcessor.peakRampTime,
-                                    fft, sft);
+    audioProcessor.updateParameters(0, audioProcessor.volOneLeft,
+                                    audioProcessor.volTwoLeft,
+                                    audioProcessor.totalRampTimeLeft,
+                                    audioProcessor.peakRampTimeLeft,
+                                    ffL, sfL);
+
+    audioProcessor.updateParameters(1, audioProcessor.volOneRight,
+                                    audioProcessor.volTwoRight,
+                                    audioProcessor.totalRampTimeRight,
+                                    audioProcessor.peakRampTimeRight,
+                                    ffR, sfR);
 }
 
 //==============================================================================
@@ -278,24 +360,48 @@ void WavesAudioProcessorEditor::resized()
     auto area = getLocalBounds();
     auto dialWidth = getWidth() / dialAspect;
     auto dialHeight = getWidth() / dialAspect;
-    auto controlsHeight = getHeight() - dialHeight;
 
-    volOneSlider.setBounds(0, controlsHeight, dialWidth - border, dialHeight - border);
-    volTwoSlider.setBounds(dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-    totalTimeSlider.setBounds(2 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-    peakTimeSlider.setBounds(3 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-    firstFunctionSlider.setBounds(4 * dialWidth, controlsHeight, (dialWidth / 2) - border, (dialHeight / 2) - border);
-    secondFunctionSlider.setBounds(4.5 * dialWidth, controlsHeight, (dialWidth / 2) - border, (dialHeight / 2) - border);
 
+    // controls for BOTH left and right
+    auto controlsHeightLeft = getHeight() - dialHeight;
+    auto controlsHeightRight = getHeight() - dialHeight;
+
+    if (stereo == 1)
+    {
+        // separate controls for each
+        controlsHeightLeft = getHeight() - 2 * dialHeight;
+        controlsHeightRight = getHeight() - dialHeight;
+    }
+
+    volOneLeftSlider.setBounds(0, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    volTwoLeftSlider.setBounds(dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    totalTimeLeftSlider.setBounds(2 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    peakTimeLeftSlider.setBounds(3 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    firstFunctionLeftSlider.setBounds(4 * dialWidth, controlsHeightLeft, (dialWidth / 2) - border, (dialHeight / 2) - border);
+    secondFunctionLeftSlider.setBounds(4.5 * dialWidth, controlsHeightLeft, (dialWidth / 2) - border, (dialHeight / 2) - border);
+
+    if (stereo == 1)
+    {
+        volOneRightSlider.setBounds(0, controlsHeightRight, dialWidth - border, dialHeight - border);
+        volTwoRightSlider.setBounds(dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+        totalTimeRightSlider.setBounds(2 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+        peakTimeRightSlider.setBounds(3 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+        firstFunctionRightSlider.setBounds(4 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
+        secondFunctionRightSlider.setBounds(4.5 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
+    }
+
+    monoStereoSelector.setBounds(4 * dialWidth, controlsHeightLeft + 0.5 * dialHeight, dialWidth - border, (dialHeight / 2) - border); // this might be in the wrong place
+    
     // strip showing the dial labels, should always be just above the dial area
-    labelDisplay.setBounds(0, getHeight() * 0.9 - dialHeight, getWidth(), getHeight() * 0.1);
+    labelDisplay.setBounds(0, getHeight() * 0.9 - (1 + stereo) * dialHeight, getWidth(), getHeight() * 0.1);
 
     // display area - fills the top half of the screen
-    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.9 - dialHeight); 
+    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() - labelDisplay.getHeight() - (1 + stereo) * dialHeight);
 }
 
 void WavesAudioProcessorEditor::timerCallback()
 {
     wavesDisplay.setLevels(0, audioProcessor.getFunctionValues(0)); // get the function values 
+    wavesDisplay.setLevels(1, audioProcessor.getFunctionValues(1)); // get the function values 
     wavesDisplay.repaint();
 }
