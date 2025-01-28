@@ -204,31 +204,31 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     peakTimeSlider.setValue(0.75);
     addAndMakeVisible(peakTimeSlider);
 
+    firstFunctionSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    firstFunctionSlider.setRange(1, 2, 1);
+    firstFunctionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    firstFunctionSlider.setPopupDisplayEnabled(false, false, this);
+    firstFunctionSlider.setValue(1);
+    addAndMakeVisible(firstFunctionSlider);
+
+    secondFunctionSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    secondFunctionSlider.setRange(1, 2, 1);
+    secondFunctionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    secondFunctionSlider.setPopupDisplayEnabled(false, false, this);
+    secondFunctionSlider.setValue(1);
+    addAndMakeVisible(secondFunctionSlider);
+
     volOneSlider.addListener(this);
     volTwoSlider.addListener(this);
     totalTimeSlider.addListener(this);
     peakTimeSlider.addListener(this);
+    firstFunctionSlider.addListener(this);
+    secondFunctionSlider.addListener(this);
 
-    auto dialAspect = 4; // ratio of width to height?
-    auto border = 4; // TODO: make this relative
-    auto area = getLocalBounds();
-    auto dialWidth = getWidth() / 4;
-    auto dialHeight = getWidth() / dialAspect;
-    auto controlsHeight = getHeight() - dialHeight;
-
-    volOneSlider.setBounds(0, controlsHeight, dialWidth - border, dialHeight - border);
-    volTwoSlider.setBounds(dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-    totalTimeSlider.setBounds(2 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-    peakTimeSlider.setBounds(3 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
-
-    // strip showing the dial labels, should always be just above the dial area
-    labelDisplay.setBounds(0, getHeight() * 0.9 - dialHeight, getWidth(), getHeight() * 0.1);
     addAndMakeVisible(labelDisplay);
-    // display area - fills the top half of the screen
-    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() * 0.9 - dialHeight);
     addAndMakeVisible(wavesDisplay);
 
-    // timer stuff
+    // timer to retreive values from the processor
     startTimerHz(24);
 }
 
@@ -246,6 +246,8 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     v2 = volTwoSlider.getValue();
     tt = totalTimeSlider.getValue();
     pt = peakTimeSlider.getValue() * tt; // peak as a fraction of total
+    fft = firstFunctionSlider.getValue();
+    sft = secondFunctionSlider.getValue();
 
     audioProcessor.volOne = v1;
     audioProcessor.volTwo = v2;
@@ -256,7 +258,8 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     audioProcessor.updateParameters(audioProcessor.volOne,
                                     audioProcessor.volTwo,
                                     audioProcessor.totalRampTime,
-                                    audioProcessor.peakRampTime);
+                                    audioProcessor.peakRampTime,
+                                    fft, sft);
 }
 
 //==============================================================================
@@ -270,11 +273,10 @@ void WavesAudioProcessorEditor::paint (juce::Graphics& g)
 void WavesAudioProcessorEditor::resized()
 {
 
-    auto dialAspect = 4; // ratio of width to height?
-
+    auto dialAspect = 5; // ratio of width to height?
     auto border = 4; // TODO: make this relative
     auto area = getLocalBounds();
-    auto dialWidth = getWidth() / 4;
+    auto dialWidth = getWidth() / dialAspect;
     auto dialHeight = getWidth() / dialAspect;
     auto controlsHeight = getHeight() - dialHeight;
 
@@ -282,6 +284,8 @@ void WavesAudioProcessorEditor::resized()
     volTwoSlider.setBounds(dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
     totalTimeSlider.setBounds(2 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
     peakTimeSlider.setBounds(3 * dialWidth, controlsHeight, dialWidth - border, dialHeight - border);
+    firstFunctionSlider.setBounds(4 * dialWidth, controlsHeight, (dialWidth / 2) - border, (dialHeight / 2) - border);
+    secondFunctionSlider.setBounds(4.5 * dialWidth, controlsHeight, (dialWidth / 2) - border, (dialHeight / 2) - border);
 
     // strip showing the dial labels, should always be just above the dial area
     labelDisplay.setBounds(0, getHeight() * 0.9 - dialHeight, getWidth(), getHeight() * 0.1);

@@ -168,7 +168,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    float v1, v2, tt, pt;
+    float v1, v2, tt, pt, fft, sft;
     void timerCallback() override;
 
 private:
@@ -177,7 +177,6 @@ private:
     VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
     LabelComponent  labelDisplay; // a separate area to label the dials
 
-
     // colour scheme for the editor
     juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
     juce::Colour secondary = juce::Colour::fromHSV (0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
@@ -185,7 +184,8 @@ private:
 
     //==============================================================================
     juce::Slider volOneSlider, volTwoSlider, totalTimeSlider, peakTimeSlider;
-    
+    juce::Slider firstFunctionSlider, secondFunctionSlider;
+
     OtherLookAndFeel wavesLookAndFeel; 
 
     //==============================================================================

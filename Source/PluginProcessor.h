@@ -185,10 +185,28 @@ public:
         updateMidWaveTime(channel); // converts the new wave time in seconds to samples
     }
 
-    void updateFunctions()
+    void updateFunctions(int first, int second)
     {
-        //linearFunction();
-        sineFunction();
+        if (first == 1 && second == 1)
+        {
+            linearFirstFunction();
+            sineFirstFunction();
+        }
+        else if (first == 1 && second == 2)
+        {
+            linearFirstFunction();
+            sineSecondFunction();
+        }
+        else if (first == 2 && second == 1)
+        {
+            sineFirstFunction();
+            linearSecondFunction();
+        }
+        else if (first == 2 && second == 2)
+        {
+            sineFirstFunction();
+            sineSecondFunction();
+        }
     }
 
     std::vector<float>& getAnyWaveArray(const int channel)
@@ -232,33 +250,36 @@ private:
     }
 
     // TODO: channel variable
-    // TODO: split pre- and post-max ramps
-    void linearFunction()
+    void linearFirstFunction()
     {
         for (int ch = 0; ch < maxNumChannels; ch++)
         {
-            float volIncrement, volReduction;
-            volIncrement = (volumeTwo[ch] - volumeOne[ch]) / midWaveTimesSample[ch];
+            float volIncrement = (volumeTwo[ch] - volumeOne[ch]) / midWaveTimesSample[ch];
 
             for (int i = 0; i < midWaveTimesSample[ch]; i++)
             {
                 float value = volumeOne[ch] + i * volIncrement;
                 waveArrays[ch].set( i, value );
             }
-            volReduction = (volumeTwo[ch] - volumeOne[ch]) / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
+
+        }
+    }
+
+    void linearSecondFunction()
+    {
+        for (int ch = 0; ch < maxNumChannels; ch++)
+        {
+            float volReduction = (volumeTwo[ch] - volumeOne[ch]) / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
             for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
             {
                 float value = volumeTwo[ch] - (i - midWaveTimesSample[ch]) * volReduction;
-                waveArrays[ch].set( i, value );
+                waveArrays[ch].set(i, value);
             }
         }
     }
 
-    void sineFunction()
+    void sineFirstFunction()
     {
-        // rise to the peak like the first part of a cosine graph,
-        // and return using the mirror
-
         constexpr double pi = 3.14159265358979323846;
         float cosArg;
         float value;
@@ -272,9 +293,9 @@ private:
                 sign *= -1.0f;
             }
             
-            for (int i = 0; i < maxWaveTimesSample[ch]; i++)
+            for (int i = 0; i < midWaveTimesSample[ch]; i++)
             {
-                cosArg = i * 2.0f * pi / maxWaveTimesSample[ch];
+                cosArg = i * 1.0f * pi / midWaveTimesSample[ch];
                 value = std::cos(cosArg); // between 0 and 1
                 value *= sign; // invert if v1 > v2
                 value = (value + 1) / 2; // between 0 and 1
@@ -283,17 +304,36 @@ private:
 
                 waveArrays[ch].set(i, value);
             }
-
-            // second part, after the 'peak'
-            //for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
-            //{
-            //    cosArg = i * M_PI / midWaveTimesSample[i];
-            //    value = std::cos(cosArg);
-            //    waveArrays[ch].set(i, value);
-            //}
         }
+    }
 
+    void sineSecondFunction()
+    {
+        constexpr double pi = 3.14159265358979323846;
+        float cosArg;
+        float value;
+        float sign = -1.0;
 
+        for (int ch = 0; ch < maxNumChannels; ch++)
+        {
+            // check which of v1 and v2 is larger
+            if (volumeOne[ch] > volumeTwo[ch])
+            {
+                sign *= -1.0f;
+            }
+
+            for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+            {
+                cosArg = (i - midWaveTimesSample[ch]) * 1.0f * pi / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
+                value = std::cos(cosArg - pi); // between 0 and 1
+                value *= sign; // invert if v1 > v2
+                value = (value + 1) / 2; // between 0 and 1
+                value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+                value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+
+                waveArrays[ch].set(i, value);
+            }
+        }
     }
 };
 
@@ -340,7 +380,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void updateParameters(float v1, float v2, float trt, float prt);
+    void updateParameters(float v1, float v2, float trt, float prt, int first, int second);
     std::vector<float> getFunctionValues(const int channel);
 
     //==============================================================================
