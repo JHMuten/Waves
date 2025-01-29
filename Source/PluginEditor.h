@@ -53,7 +53,7 @@ public:
     void resized() override;
 
 private:
-    juce::Label  volOneLabel, volTwoLabel, totalTimeLabel, peakTimeLabel;
+    juce::Label  volOneLabel, volTwoLabel, peakTimeLabel, totalTimeLabel;
 
     // colour scheme for label component
     juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
@@ -103,6 +103,42 @@ public:
         g.fillPath(p);
     }
 
+    void drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+        float sliderPos,
+        float minSliderPos,
+        float maxSliderPos,
+        const juce::Slider::SliderStyle style, juce::Slider& slider) override
+    {
+        auto trackWidth = juce::jmin(6.0f, slider.isHorizontal() ? (float)height * 0.25f : (float)width * 0.25f);
+
+        juce::Point<float> startPoint(slider.isHorizontal() ? (float)x : (float)x + (float)width * 0.5f,
+            slider.isHorizontal() ? (float)y + (float)height * 0.5f : (float)(height + y));
+
+        juce::Point<float> endPoint(slider.isHorizontal() ? (float)(width + x) : startPoint.x,
+            slider.isHorizontal() ? startPoint.y : (float)y);
+
+        juce::Path backgroundTrack;
+        backgroundTrack.startNewSubPath(startPoint);
+        backgroundTrack.lineTo(endPoint);
+        g.setColour(slider.findColour(juce::Slider::backgroundColourId));
+        g.strokePath(backgroundTrack, { trackWidth, juce::PathStrokeType::curved, juce::PathStrokeType::rounded });
+
+        auto thumbWidth = getSliderThumbRadius(slider);
+
+        g.setColour(tertiary);
+
+        if (slider.isVertical())
+        {
+            g.fillRoundedRectangle(x + width * 0.5 - thumbWidth * 0.5, sliderPos - 0.5 * thumbWidth, thumbWidth, thumbWidth, 1.0f);
+        }
+        else
+        {
+            g.fillRoundedRectangle(sliderPos - 0.5 * thumbWidth, y + height * 0.5 - thumbWidth * 0.5, thumbWidth, thumbWidth, 1.0f);
+        }
+    }
+
+
+
     void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
         bool, bool isButtonDown) override
     {
@@ -149,9 +185,9 @@ public:
     }
 private:
     // colour scheme for look and feel
-    juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.30f, 0.85f, 1.0f); // blue (light)
     juce::Colour secondary = juce::Colour::fromHSV (0.575f, 0.80f, 0.50f, 1.0f); // blue (dark)
-    juce::Colour tertiary =  juce::Colour::fromHSV (0.075f, 0.8f, 1.0f, 1.0f); // orange
+    juce::Colour tertiary =  juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange
 
 };
 
@@ -189,6 +225,9 @@ private:
     juce::Slider firstFunctionLeftSlider, secondFunctionLeftSlider;
     juce::Slider firstFunctionRightSlider, secondFunctionRightSlider;
     juce::Slider monoStereoSelector;
+
+    juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionLorentzLeftLabel;
+    juce::Label functionLinearRightLabel, functionSineRightLabel, functionLorentzRightLabel;
 
     OtherLookAndFeel wavesLookAndFeel; 
 

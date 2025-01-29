@@ -28,7 +28,7 @@ VisualComponent::VisualComponent()
 void VisualComponent::paint(juce::Graphics& g)
 {
     // background colour
-    g.fillAll(primary);
+    //g.fillAll(primary);
 
     auto borderThickness = 5;
     g.setColour(juce::Colours::darkgrey);
@@ -118,8 +118,8 @@ LabelComponent::LabelComponent()
 
 void LabelComponent::paint(juce::Graphics& g)
 {
-     // TODO: pick colour from variable
-    g.fillAll(primary);
+    
+    //g.fillAll(primary);
 }
 
 void LabelComponent::resized()
@@ -133,8 +133,8 @@ void LabelComponent::resized()
 
     volOneLabel.setBounds    (labelHorizontalBorder,                  labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
     volTwoLabel.setBounds    (labelHorizontalBorder + labelWidth,     labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
-    totalTimeLabel.setBounds (labelHorizontalBorder + 2 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
-    peakTimeLabel.setBounds  (labelHorizontalBorder + 3 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
+    peakTimeLabel.setBounds (labelHorizontalBorder + 2 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
+    totalTimeLabel.setBounds  (labelHorizontalBorder + 3 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
 }
 
 //==============================================================================
@@ -156,94 +156,130 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     volOneLeftSlider.setRange (0.0, 1.0, 0.01);
     volOneLeftSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
     volOneLeftSlider.setPopupDisplayEnabled (false, false, this);
-    volOneLeftSlider.setValue (0.25);
+    volOneLeftSlider.setValue (0.5);
+    volOneLeftSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible (volOneLeftSlider);
 
     volTwoLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     volTwoLeftSlider.setRange(0.0, 1.0, 0.01);
     volTwoLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     volTwoLeftSlider.setPopupDisplayEnabled(false, false, this);
-    volTwoLeftSlider.setValue(0.75);
+    volTwoLeftSlider.setValue(0.5);
+    volTwoLeftSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible(volTwoLeftSlider);
 
-    totalTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeLeftSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
-    totalTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    totalTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeLeftSlider.setValue(0.75);
-    addAndMakeVisible(totalTimeLeftSlider);
-
     peakTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    peakTimeLeftSlider.setRange(0.1, 1.0, 0.01);
+    peakTimeLeftSlider.setRange(0.01, 1.0, 0.01);
     peakTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeLeftSlider.setValue(0.75);
+    peakTimeLeftSlider.setValue(0.5);
+    peakTimeLeftSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible(peakTimeLeftSlider);
 
-    firstFunctionLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    firstFunctionLeftSlider.setRange(1, 2, 1);
-    firstFunctionLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    totalTimeLeftSlider.setRange(0.1, 2.0, 0.01);
+    totalTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
+    totalTimeLeftSlider.setValue(1.0);
+    totalTimeLeftSlider.setDoubleClickReturnValue(true, 1.0);
+    addAndMakeVisible(totalTimeLeftSlider);
+
+    firstFunctionLeftSlider.setSliderStyle(juce::Slider::LinearVertical);
+    firstFunctionLeftSlider.setRange(1, 3, 1);
+    firstFunctionLeftSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     firstFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
     firstFunctionLeftSlider.setValue(1);
     addAndMakeVisible(firstFunctionLeftSlider);
 
-    secondFunctionLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    secondFunctionLeftSlider.setRange(1, 2, 1);
-    secondFunctionLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    secondFunctionLeftSlider.setSliderStyle(juce::Slider::LinearVertical);
+    secondFunctionLeftSlider.setRange(1, 3, 1);
+    secondFunctionLeftSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     secondFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
     secondFunctionLeftSlider.setValue(1);
     addAndMakeVisible(secondFunctionLeftSlider);
+
+    // function labels
+    functionLorentzLeftLabel.setText("Lor.", juce::dontSendNotification);
+    functionLorentzLeftLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionLorentzLeftLabel);
+
+    functionSineLeftLabel.setText ("sine", juce::dontSendNotification);
+    functionSineLeftLabel.setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (functionSineLeftLabel);
+
+    functionLinearLeftLabel.setText("x", juce::dontSendNotification);
+    functionLinearLeftLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionLinearLeftLabel);
 
     // RIGHT CHANNEL SLIDERS
     volOneRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     volOneRightSlider.setRange(0.0, 1.0, 0.01);
     volOneRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
     volOneRightSlider.setPopupDisplayEnabled(false, false, this);
-    volOneRightSlider.setValue(0.25);
+    volOneRightSlider.setValue(0.5);
+    volOneRightSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible(volOneRightSlider);
 
     volTwoRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     volTwoRightSlider.setRange(0.0, 1.0, 0.01);
     volTwoRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     volTwoRightSlider.setPopupDisplayEnabled(false, false, this);
-    volTwoRightSlider.setValue(0.75);
+    volTwoRightSlider.setValue(0.5);
+    volTwoRightSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible(volTwoRightSlider);
 
-    totalTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeRightSlider.setRange(0.1, 1.0, 0.01); // up to 1 second for now
-    totalTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    totalTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeRightSlider.setValue(0.75);
-    addAndMakeVisible(totalTimeRightSlider);
-
     peakTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    peakTimeRightSlider.setRange(0.1, 1.0, 0.01);
+    peakTimeRightSlider.setRange(0.01, 1.0, 0.01);
     peakTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeRightSlider.setValue(0.75);
+    peakTimeRightSlider.setValue(0.5);
+    peakTimeRightSlider.setDoubleClickReturnValue(true, 0.5);
     addAndMakeVisible(peakTimeRightSlider);
 
-    firstFunctionRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    firstFunctionRightSlider.setRange(1, 2, 1);
-    firstFunctionRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    totalTimeRightSlider.setRange(0.1, 2.0, 0.01);      // TODO: Skew so the 1s point is central
+    totalTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    totalTimeRightSlider.setPopupDisplayEnabled(false, false, this);
+    totalTimeRightSlider.setValue(1.0);
+    totalTimeRightSlider.setDoubleClickReturnValue(true, 1.0);
+    addAndMakeVisible(totalTimeRightSlider);
+
+    firstFunctionRightSlider.setSliderStyle(juce::Slider::LinearVertical);
+    firstFunctionRightSlider.setRange(1, 3, 1);
+    firstFunctionRightSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     firstFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
     firstFunctionRightSlider.setValue(1);
     addAndMakeVisible(firstFunctionRightSlider);
 
-    secondFunctionRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    secondFunctionRightSlider.setRange(1, 2, 1);
-    secondFunctionRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    secondFunctionRightSlider.setSliderStyle(juce::Slider::LinearVertical);
+    secondFunctionRightSlider.setRange(1, 3, 1);
+    secondFunctionRightSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     secondFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
     secondFunctionRightSlider.setValue(1);
     addAndMakeVisible(secondFunctionRightSlider);
 
+    // function labels
+    functionLorentzRightLabel.setText("Lor.", juce::dontSendNotification);
+    functionLorentzRightLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionLorentzRightLabel);
+
+    functionSineRightLabel.setText("sine", juce::dontSendNotification);
+    functionSineRightLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionSineRightLabel);
+
+    functionLinearRightLabel.setText("x", juce::dontSendNotification);
+    functionLinearRightLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionLinearRightLabel);
+
+    // Mono/stereo selector switch
     monoStereoSelector.setSliderStyle(juce::Slider::LinearHorizontal);
     monoStereoSelector.setRange(0, 1, 1);
-    monoStereoSelector.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    monoStereoSelector.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     monoStereoSelector.setPopupDisplayEnabled(false, false, this);
     monoStereoSelector.setValue(0);
     addAndMakeVisible(monoStereoSelector);
 
+    // all listeners
     volOneLeftSlider.addListener(this);
     volTwoLeftSlider.addListener(this);
     totalTimeLeftSlider.addListener(this);
@@ -283,18 +319,18 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     v1L = volOneLeftSlider.getValue();
     v2L = volTwoLeftSlider.getValue();
     ttL = totalTimeLeftSlider.getValue();
-    ptL = peakTimeLeftSlider.getValue() * ttL;
+    ptL = peakTimeLeftSlider.getValue();
     ffL = firstFunctionLeftSlider.getValue();
     sfL = secondFunctionLeftSlider.getValue();
 
     if (stereo == 0)
     {
-        volOneRightSlider.setVisible(false);
-        volTwoRightSlider.setVisible(false);
-        totalTimeRightSlider.setVisible(false);
-        peakTimeRightSlider.setVisible(false);
-        firstFunctionRightSlider.setVisible(false);
-        secondFunctionRightSlider.setVisible(false);
+        volOneRightSlider.setValue(v1L);
+        volTwoRightSlider.setValue(v2L);
+        peakTimeRightSlider.setValue(ptL);
+        totalTimeRightSlider.setValue(ttL);
+        firstFunctionRightSlider.setValue(ffL);
+        secondFunctionRightSlider.setValue(sfL);
 
         v1R = v1L;
         v2R = v2L;
@@ -305,13 +341,6 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     }
     else if (stereo == 1)
     {
-        volOneRightSlider.setVisible(true);
-        volTwoRightSlider.setVisible(true);
-        totalTimeRightSlider.setVisible(true);
-        peakTimeRightSlider.setVisible(true);
-        firstFunctionRightSlider.setVisible(true);
-        secondFunctionRightSlider.setVisible(true);
-
         v1R = volOneRightSlider.getValue();
         v2R = volTwoRightSlider.getValue();
         ttR = totalTimeRightSlider.getValue();
@@ -319,16 +348,21 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
         ffR = firstFunctionRightSlider.getValue();
         sfR = secondFunctionRightSlider.getValue();
     }
+    else if (stereo == 2)
+    {
+        // todo: implement the mirror function where 
+        //       the right volume is the inverse of the left
+    }
 
     audioProcessor.volOneLeft = v1L;
     audioProcessor.volTwoLeft = v2L;
     audioProcessor.totalRampTimeLeft = ttL;
-    audioProcessor.peakRampTimeLeft = ptL;
+    audioProcessor.peakRampTimeLeft = ptL * ttL;
 
     audioProcessor.volOneRight = v1R;
     audioProcessor.volTwoRight = v2R;
     audioProcessor.totalRampTimeRight = ttR;
-    audioProcessor.peakRampTimeRight = ptR;
+    audioProcessor.peakRampTimeRight = ptR * ttR;
 
     // function to update the waves class
     audioProcessor.updateParameters(0, audioProcessor.volOneLeft,
@@ -347,7 +381,7 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 //==============================================================================
 void WavesAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.setColour (juce::Colours::white);
+    //g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
     g.fillAll(primary);
 }
@@ -362,41 +396,39 @@ void WavesAudioProcessorEditor::resized()
     auto dialHeight = getWidth() / dialAspect;
 
 
-    // controls for BOTH left and right
-    auto controlsHeightLeft = getHeight() - dialHeight;
+    // control rows for left and right
+    auto controlsHeightLeft = getHeight() - 2 * dialHeight;
     auto controlsHeightRight = getHeight() - dialHeight;
-
-    if (stereo == 1)
-    {
-        // separate controls for each
-        controlsHeightLeft = getHeight() - 2 * dialHeight;
-        controlsHeightRight = getHeight() - dialHeight;
-    }
 
     volOneLeftSlider.setBounds(0, controlsHeightLeft, dialWidth - border, dialHeight - border);
     volTwoLeftSlider.setBounds(dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
-    totalTimeLeftSlider.setBounds(2 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
-    peakTimeLeftSlider.setBounds(3 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
-    firstFunctionLeftSlider.setBounds(4 * dialWidth, controlsHeightLeft, (dialWidth / 2) - border, (dialHeight / 2) - border);
-    secondFunctionLeftSlider.setBounds(4.5 * dialWidth, controlsHeightLeft, (dialWidth / 2) - border, (dialHeight / 2) - border);
+    peakTimeLeftSlider.setBounds(2 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    totalTimeLeftSlider.setBounds(3 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    firstFunctionLeftSlider.setBounds(4 * dialWidth, controlsHeightLeft, (dialWidth / 4), (dialHeight / 2) - border);
+    secondFunctionLeftSlider.setBounds(4.75 * dialWidth, controlsHeightLeft, (dialWidth / 4) - border, (dialHeight / 2) - border);
 
-    if (stereo == 1)
-    {
-        volOneRightSlider.setBounds(0, controlsHeightRight, dialWidth - border, dialHeight - border);
-        volTwoRightSlider.setBounds(dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
-        totalTimeRightSlider.setBounds(2 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
-        peakTimeRightSlider.setBounds(3 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
-        firstFunctionRightSlider.setBounds(4 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
-        secondFunctionRightSlider.setBounds(4.5 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
-    }
+    auto functionHeight = dialHeight / 4;
+    auto functionWidth = dialWidth / 2;
+
+    functionLorentzLeftLabel.setBounds (4.5 * dialWidth - 0.5 * functionWidth, controlsHeightLeft, (dialWidth / 3), functionHeight);
+    functionSineLeftLabel.   setBounds (4.5 * dialWidth - 0.5 * functionWidth, controlsHeightLeft + functionHeight, (dialWidth / 3), functionHeight);
+    functionLinearLeftLabel. setBounds (4.5 * dialWidth - 0.5 * functionWidth, controlsHeightLeft + 2 * functionHeight, (dialWidth / 3), functionHeight);
+
+    volOneRightSlider.setBounds(0, controlsHeightRight, dialWidth - border, dialHeight - border);
+    volTwoRightSlider.setBounds(dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+    peakTimeRightSlider.setBounds(2 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+    totalTimeRightSlider.setBounds(3 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+    firstFunctionRightSlider.setBounds(4 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
+    secondFunctionRightSlider.setBounds(4.5 * dialWidth, controlsHeightRight, (dialWidth / 2) - border, (dialHeight / 2) - border);
+
 
     monoStereoSelector.setBounds(4 * dialWidth, controlsHeightLeft + 0.5 * dialHeight, dialWidth - border, (dialHeight / 2) - border); // this might be in the wrong place
     
     // strip showing the dial labels, should always be just above the dial area
-    labelDisplay.setBounds(0, getHeight() * 0.9 - (1 + stereo) * dialHeight, getWidth(), getHeight() * 0.1);
+    labelDisplay.setBounds(0, getHeight() * 0.9 - 2 * dialHeight, getWidth(), getHeight() * 0.1);
 
     // display area - fills the top half of the screen
-    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() - labelDisplay.getHeight() - (1 + stereo) * dialHeight);
+    wavesDisplay.setBounds(0, 0, getWidth(), getHeight() - labelDisplay.getHeight() - 2 * dialHeight);
 }
 
 void WavesAudioProcessorEditor::timerCallback()

@@ -187,6 +187,9 @@ public:
 
     void updateFunctions(int channel, int first, int second)
     {
+        // 1 for linear
+        // 2 for sine
+        // 3 for laplace maybe? (not implemented yet)
         if (first == 1 && second == 1)
         {
             linearFirstFunction(channel);
@@ -197,12 +200,37 @@ public:
             linearFirstFunction(channel);
             sineSecondFunction(channel);
         }
+        else if (first == 1 && second == 3)
+        {
+            linearFirstFunction(channel);
+            sineSecondFunction(channel);
+        }
         else if (first == 2 && second == 1)
         {
             sineFirstFunction(channel);
             linearSecondFunction(channel);
         }
         else if (first == 2 && second == 2)
+        {
+            sineFirstFunction(channel);
+            sineSecondFunction(channel);
+        }
+        else if (first == 2 && second == 3)
+        {
+            sineFirstFunction(channel);
+            sineSecondFunction(channel);
+        }
+        else if (first == 3 && second == 1)
+        {
+            sineFirstFunction(channel);
+            linearSecondFunction(channel);
+        }
+        else if (first == 3 && second == 2)
+        {
+            sineFirstFunction(channel);
+            sineSecondFunction(channel);
+        }
+        else if (first == 3 && second == 3)
         {
             sineFirstFunction(channel);
             sineSecondFunction(channel);
