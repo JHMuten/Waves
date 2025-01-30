@@ -19,7 +19,6 @@ public:
     //~VisualComponent() {};
     void paint(juce::Graphics&) override;
     void resized() override;
-
     void setLevels(const int channel, std::vector<float> values);
 
 private:
@@ -29,19 +28,32 @@ private:
     juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
     juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
 
-    // parameters for the display
-    float screenLeft;
-    float screenRight;
-    float screenWidth;
-    float screenTop;
-    float screenBottom;
-    float screenHeight;
-
     std::vector<std::vector<float>> displayValues{{0, 1}, { 0,1 }};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualComponent)
 };
 
+
+//==============================================================================
+class CoverComponent : public juce::Component
+{
+public:
+    CoverComponent() {}
+    //~VisualComponent() {};
+    void paint(juce::Graphics&) override;
+    //void resized() override;
+    
+private:
+    //==============================================================================
+    // colour scheme for visual component
+    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
+
+    juce::Colour coverColour = juce::Colours::grey;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CoverComponent)
+};
 
 //==============================================================================
 class LabelComponent : public juce::Component
@@ -53,7 +65,7 @@ public:
     void resized() override;
 
 private:
-    juce::Label  volOneLabel, volTwoLabel, peakTimeLabel, totalTimeLabel;
+    juce::Label volOneLabel, volTwoLabel, peakTimeLabel, totalTimeLabel, functionLabel;
 
     // colour scheme for label component
     juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
@@ -213,6 +225,8 @@ private:
     WavesAudioProcessor& audioProcessor;
     VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
     LabelComponent  labelDisplay; // a separate area to label the dials
+    juce::Label monoLabel;
+    CoverComponent monoCover;
 
     // colour scheme for the editor
     juce::Colour primary =   juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
@@ -228,6 +242,8 @@ private:
 
     juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionLorentzLeftLabel;
     juce::Label functionLinearRightLabel, functionSineRightLabel, functionLorentzRightLabel;
+
+
 
     OtherLookAndFeel wavesLookAndFeel; 
 

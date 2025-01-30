@@ -203,7 +203,7 @@ public:
         else if (first == 1 && second == 3)
         {
             linearFirstFunction(channel);
-            sineSecondFunction(channel);
+            lorSecondFunction(channel);
         }
         else if (first == 2 && second == 1)
         {
@@ -218,22 +218,22 @@ public:
         else if (first == 2 && second == 3)
         {
             sineFirstFunction(channel);
-            sineSecondFunction(channel);
+            lorSecondFunction(channel);
         }
         else if (first == 3 && second == 1)
         {
-            sineFirstFunction(channel);
+            lorFirstFunction(channel);
             linearSecondFunction(channel);
         }
         else if (first == 3 && second == 2)
         {
-            sineFirstFunction(channel);
+            lorFirstFunction(channel);
             sineSecondFunction(channel);
         }
         else if (first == 3 && second == 3)
         {
-            sineFirstFunction(channel);
-            sineSecondFunction(channel);
+            lorFirstFunction(channel);
+            lorSecondFunction(channel);
         }
     }
 
@@ -260,6 +260,10 @@ private:
 
     // this is the only one that's channel independent
     float sampleRate{ float(44.1e3) };
+
+    // mathematical parameters
+    //constexpr double pi    = 3.14159265358979323846;
+    //constexpr double invpi = 0.31830988618379067154;
 
     void updateWaveArraySize(int channel) // TODO: fix
     {
@@ -345,6 +349,73 @@ private:
             value = (value + 1) / 2; // between 0 and 1
             value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
             value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+
+            waveArrays[ch].set(i, value);
+        }
+    }
+
+    void lorFirstFunction(int ch)
+    {
+        // lorentzian curve
+        constexpr double invpi = 0.31830988618379067154;
+
+        // check which of v1 and v2 is larger
+        auto sign = 1.0f;
+        if (volumeOne[ch] > volumeTwo[ch])
+        {
+            sign *= -1.0f;
+        }
+
+        // (1/pi) * w / ((x - x0)^2 + (w)^2)
+        // with width w 
+        // and maximum x0 (the peak in this program)
+        
+        // will have a fixed width 1
+        // force a floor by subtraction
+        // and multiply the function to still reach 1 at x0
+
+        // use invpi from above
+        auto value = 1.0f;
+        auto arg = 1.0f;
+        auto w = 1.0f;
+        for (int i = 0; i < midWaveTimesSample[ch]; i++)
+        {
+            arg = (i / midWaveTimesSample[ch]) * 4 - 4;
+            value = pow(arg - midWaveTimesSample[ch], 2) + pow(w * 0.5, 2);
+            value = 0.5 * w * invpi * (1 / value);
+            //value *= sign; // invert if v1 > v2
+            //value = (value + 1) / 2; // between 0 and 1
+            //value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+            //value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+
+            waveArrays[ch].set(i, value);
+        }
+
+    }
+
+    void lorSecondFunction(int ch)
+    {
+        // lorentzian curve
+        constexpr double invpi = 0.31830988618379067154;
+        // check which of v1 and v2 is larger
+        auto sign = 1.0f;
+        if (volumeOne[ch] > volumeTwo[ch])
+        {
+            sign *= -1.0f;
+        }
+
+        auto value = 1.0f;
+        auto arg = 1.0f;
+        auto w = 1.0f;
+        for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+        {
+            arg = (i / midWaveTimesSample[ch]) * 4 - 4;
+            value = pow(arg - midWaveTimesSample[ch], 2) + pow(w * 0.5, 2);
+            value = 0.5 * w * invpi * (1 / value);
+            //value *= sign; // invert if v1 > v2
+            //value = (value + 1) / 2; // between 0 and 1
+            //value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+            //value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
 
             waveArrays[ch].set(i, value);
         }
