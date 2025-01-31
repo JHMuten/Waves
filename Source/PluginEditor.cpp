@@ -413,40 +413,50 @@ void WavesAudioProcessorEditor::resized()
     auto dialAspect = 5;
     auto border = 4; // TODO: make this relative
     auto area   = getLocalBounds();
-    auto dialWidth  = getWidth() / dialAspect;
-    auto dialHeight = getWidth() / dialAspect;
-    auto controlsHeightLeft = getHeight() - 2 * dialHeight;
+
+    auto dialHeight = getHeight() * 0.2; // new way of fixing aspect
+    auto dialSpacing = getWidth() / dialAspect;
+
+    if (dialSpacing < dialHeight)
+    {
+        dialHeight = dialSpacing;
+    }
+
+    auto dialWidth = dialHeight;
+    auto dialXPos = (dialSpacing - dialWidth) / 2;
+
     auto controlsHeightRight = getHeight() - dialHeight;
+    auto controlsHeightLeft = controlsHeightRight - dialHeight;
 
-    volOneLeftSlider.setBounds    (0,             controlsHeightLeft, dialWidth - border, dialHeight - border);
-    volTwoLeftSlider.setBounds    (dialWidth,     controlsHeightLeft, dialWidth - border, dialHeight - border);
-    peakTimeLeftSlider.setBounds  (2 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
-    totalTimeLeftSlider.setBounds (3 * dialWidth, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    volOneLeftSlider.setBounds    (dialXPos,                   controlsHeightLeft, dialWidth - border, dialHeight - border);
+    volTwoLeftSlider.setBounds    (dialXPos + dialSpacing,     controlsHeightLeft, dialWidth - border, dialHeight - border);
+    peakTimeLeftSlider.setBounds  (dialXPos + 2 * dialSpacing, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    totalTimeLeftSlider.setBounds (dialXPos + 3 * dialSpacing, controlsHeightLeft, dialWidth - border, dialHeight - border);
 
-    auto funcWidth  = dialWidth / 6;
+    auto funcWidth  = dialSpacing / 6;
     auto funcHeight = dialHeight * 0.6;
 
-    firstFunctionLeftSlider.setBounds  (4 * dialWidth + funcWidth,     controlsHeightLeft + dialHeight * 0.1, funcWidth, funcHeight);
-    secondFunctionLeftSlider.setBounds (5 * dialWidth - 2 * funcWidth, controlsHeightLeft + dialHeight * 0.1, funcWidth, funcHeight);
+    firstFunctionLeftSlider.setBounds  (4 * dialSpacing + funcWidth,     controlsHeightLeft + dialHeight * 0.1, funcWidth, funcHeight);
+    secondFunctionLeftSlider.setBounds (5 * dialSpacing - 2 * funcWidth, controlsHeightLeft + dialHeight * 0.1, funcWidth, funcHeight);
 
     auto funcLabelHeight = dialHeight / 5;
-    auto funcLabelWidth  = dialWidth / 3;
+    auto funcLabelWidth  = dialSpacing / 3;
 
-    functionLorentzLeftLabel.setBounds (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
-    functionSineLeftLabel.   setBounds (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
-    functionLinearLeftLabel. setBounds (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
+    functionLorentzLeftLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    functionSineLeftLabel.   setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
+    functionLinearLeftLabel. setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
-    volOneRightSlider.   setBounds (0,             controlsHeightRight, dialWidth - border, dialHeight - border);
-    volTwoRightSlider.   setBounds (dialWidth,     controlsHeightRight, dialWidth - border, dialHeight - border);
-    peakTimeRightSlider. setBounds (2 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
-    totalTimeRightSlider.setBounds (3 * dialWidth, controlsHeightRight, dialWidth - border, dialHeight - border);
+    volOneRightSlider.setBounds    (dialXPos,                   controlsHeightRight, dialWidth - border, dialHeight - border);
+    volTwoRightSlider.setBounds    (dialXPos + dialSpacing,     controlsHeightRight, dialWidth - border, dialHeight - border);
+    peakTimeRightSlider.setBounds  (dialXPos + 2 * dialSpacing, controlsHeightRight, dialWidth - border, dialHeight - border);
+    totalTimeRightSlider.setBounds (dialXPos + 3 * dialSpacing, controlsHeightRight, dialWidth - border, dialHeight - border);
 
-    firstFunctionRightSlider. setBounds (4 * dialWidth + funcWidth,     controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
-    secondFunctionRightSlider.setBounds (5 * dialWidth - 2 * funcWidth, controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
+    firstFunctionRightSlider. setBounds (4 * dialSpacing + funcWidth,     controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
+    secondFunctionRightSlider.setBounds (5 * dialSpacing - 2 * funcWidth, controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
 
-    functionLorentzRightLabel.setBounds (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
-    functionSineRightLabel.setBounds    (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
-    functionLinearRightLabel.setBounds  (4.5 * dialWidth - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
+    functionLorentzRightLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    functionSineRightLabel.setBounds    (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
+    functionLinearRightLabel.setBounds  (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
     // strip showing the dial labels, should always be just above the dial area
     auto labelHeight = getHeight() * 0.05;
@@ -460,10 +470,10 @@ void WavesAudioProcessorEditor::resized()
     auto monoHeight = dialHeight / 2;
     auto monoYPos   = labelYPos - monoHeight;
     auto monoXBorder = getWidth() * 0.05;
-    monoStereoSelector.setBounds(monoXBorder, monoYPos, (dialWidth / 2), monoHeight);
+    monoStereoSelector.setBounds(monoXBorder, monoYPos,  dialSpacing / 2, monoHeight);
     
     // mono/stereo label
-    monoLabel.setBounds(monoXBorder, monoYPos - monoHeight / 2, dialWidth / 2, labelHeight);
+    monoLabel.setBounds(monoXBorder, monoYPos - monoHeight / 2, dialSpacing / 2, labelHeight);
 
     // faint grey box to cover stereo controls in mono
     monoCover.setBounds (0, controlsHeightRight, getWidth(), dialHeight);

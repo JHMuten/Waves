@@ -141,11 +141,17 @@ public:
 
         if (slider.isVertical())
         {
+            g.setColour(tertiary);
             g.fillRoundedRectangle(x + width * 0.5 - thumbWidth * 0.5, sliderPos - 0.5 * thumbWidth, thumbWidth, thumbWidth, 1.0f);
+            g.setColour(secondary);
+            g.drawRoundedRectangle(x + width * 0.5 - thumbWidth * 0.5, sliderPos - 0.5 * thumbWidth, thumbWidth, thumbWidth, 1.0f, 2.0f);
         }
         else
         {
+            g.setColour(tertiary);
             g.fillRoundedRectangle(sliderPos - 0.5 * thumbWidth, y + height * 0.5 - thumbWidth * 0.5, thumbWidth, thumbWidth, 1.0f);
+            g.setColour(secondary);
+            g.drawRoundedRectangle(sliderPos - 0.5 * thumbWidth, y + height * 0.5 - thumbWidth * 0.5, thumbWidth, thumbWidth, 1.0f, 2.0f);
         }
     }
 
