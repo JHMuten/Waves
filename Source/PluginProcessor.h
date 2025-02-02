@@ -369,25 +369,27 @@ private:
         // (1/pi) * w / ((x - x0)^2 + (w)^2)
         // with width w 
         // and maximum x0 (the peak in this program)
-        
-        // will have a fixed width 1
-        // force a floor by subtraction
-        // and multiply the function to still reach 1 at x0
 
-        // use invpi from above
+        // changing to a gaussian
+        // as they are a bit wider 
+        // and dont get smaller with increasing width
+
         auto value = 1.0f;
         auto arg = 1.0f;
-        auto w = 1.0f;
+        auto w = maxWaveTimesSample[ch] * 0.1;
         for (int i = 0; i < midWaveTimesSample[ch]; i++)
         {
-            arg = (i / midWaveTimesSample[ch]) * 4 - 4;
-            value = pow(arg - midWaveTimesSample[ch], 2) + pow(w * 0.5, 2);
-            value = 0.5 * w * invpi * (1 / value);
-            //value *= sign; // invert if v1 > v2
-            //value = (value + 1) / 2; // between 0 and 1
-            //value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            //value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            arg = pow(i - midWaveTimesSample[ch], 2);
+            arg = -1.0f * arg / pow(w, 2);
+            value = std::exp(arg);
+            
+            value -= 0.5;
+            value *= sign; // invert if v1 > v2
+            value += 0.5;
 
+            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            
             waveArrays[ch].set(i, value);
         }
 
@@ -406,16 +408,19 @@ private:
 
         auto value = 1.0f;
         auto arg = 1.0f;
-        auto w = 1.0f;
+        auto w = maxWaveTimesSample[ch] * 0.1;
         for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
         {
-            arg = (i / midWaveTimesSample[ch]) * 4 - 4;
-            value = pow(arg - midWaveTimesSample[ch], 2) + pow(w * 0.5, 2);
-            value = 0.5 * w * invpi * (1 / value);
-            //value *= sign; // invert if v1 > v2
-            //value = (value + 1) / 2; // between 0 and 1
-            //value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            //value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            arg = pow(i - midWaveTimesSample[ch], 2);
+            arg = -1.0f * arg / pow(w, 2);
+            value = std::exp(arg);
+
+            value -= 0.5;
+            value *= sign; // invert if v1 > v2
+            value += 0.5;
+            
+            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
+            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
 
             waveArrays[ch].set(i, value);
         }
