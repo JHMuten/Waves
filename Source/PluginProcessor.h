@@ -47,7 +47,7 @@ public:
     Type get(size_t waveSample) const noexcept
     {
         jassert(waveSample >= 0 && waveSample < size());
-        return waveArray[(waveSample) % size()]; // [3]
+        return waveArray[(waveSample) % size()];
     }
 
     Type getNext() noexcept
@@ -69,7 +69,7 @@ public:
     void set(size_t waveSample, Type newValue) noexcept
     {
         jassert (waveSample >= 0 && waveSample < size());
-        waveArray[(waveSample) % size()] = newValue; // [4]
+        waveArray[(waveSample) % size()] = newValue;
     }
 
     void setOffset(size_t newValue)
@@ -107,7 +107,6 @@ public:
 
             setVolumeOne(i, 0.25);
             setVolumeTwo(i, 0.75);
-
         }
     }
 

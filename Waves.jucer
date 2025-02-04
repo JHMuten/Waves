@@ -12,6 +12,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="ugRJ2E" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="FG4NfS" name="MutenAudioLookAndFeel.h" compile="0" resource="0"
+          file="Source/MutenAudioLookAndFeel.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

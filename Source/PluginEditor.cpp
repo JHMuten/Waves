@@ -360,7 +360,7 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
         v1R = volOneRightSlider.getValue();
         v2R = volTwoRightSlider.getValue();
         ttR = totalTimeRightSlider.getValue();
-        ptR = peakTimeRightSlider.getValue() * ttR;
+        ptR = peakTimeRightSlider.getValue();
         ffR = firstFunctionRightSlider.getValue();
         sfR = secondFunctionRightSlider.getValue();
 
