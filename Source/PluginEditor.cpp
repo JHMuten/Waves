@@ -139,7 +139,7 @@ void LabelComponent::resized()
 }
 
 //==============================================================================
-WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
+WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     setLookAndFeel (&wavesLookAndFeel);
@@ -153,53 +153,48 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     setSize (800, 600);
 
     // LEFT CHANNEL SLIDERS
+    addAndMakeVisible(volOneLeftSlider);
+    volOneLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "v1L", volOneLeftSlider));
     volOneLeftSlider.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-    volOneLeftSlider.setRange (0.0, 1.0, 0.01);
     volOneLeftSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
     volOneLeftSlider.setPopupDisplayEnabled (false, false, this);
-    volOneLeftSlider.setValue (0.5);
     volOneLeftSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible (volOneLeftSlider);
 
+    addAndMakeVisible(volTwoLeftSlider);
+    volTwoLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "v2L", volTwoLeftSlider));
     volTwoLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    volTwoLeftSlider.setRange(0.0, 1.0, 0.01);
     volTwoLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     volTwoLeftSlider.setPopupDisplayEnabled(false, false, this);
-    volTwoLeftSlider.setValue(0.5);
     volTwoLeftSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible(volTwoLeftSlider);
-
+   
+    addAndMakeVisible(peakTimeLeftSlider);
+    peakTimeLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ptL", peakTimeLeftSlider));
     peakTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    peakTimeLeftSlider.setRange(0.0, 1.0, 0.01);
     peakTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeLeftSlider.setValue(0.5);
     peakTimeLeftSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible(peakTimeLeftSlider);
 
+    addAndMakeVisible(totalTimeLeftSlider);
+    totalTimeLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ttL", totalTimeLeftSlider));
     totalTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeLeftSlider.setRange(0.1, 2.0, 0.01);
     totalTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     totalTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeLeftSlider.setValue(1.0);
     totalTimeLeftSlider.setDoubleClickReturnValue(true, 1.0);
     addAndMakeVisible(totalTimeLeftSlider);
 
+    addAndMakeVisible(firstFunctionLeftSlider);
+    firstFunctionLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffL", firstFunctionLeftSlider));
     firstFunctionLeftSlider.setSliderStyle(juce::Slider::LinearVertical);
-    firstFunctionLeftSlider.setRange(1, 3, 1);
     firstFunctionLeftSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     firstFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
     firstFunctionLeftSlider.setSliderSnapsToMousePosition(true);
-    firstFunctionLeftSlider.setValue(1);
-    addAndMakeVisible(firstFunctionLeftSlider);
 
+    addAndMakeVisible(secondFunctionLeftSlider);
+    secondFunctionLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "sfL", secondFunctionLeftSlider));
     secondFunctionLeftSlider.setSliderStyle(juce::Slider::LinearVertical);
-    secondFunctionLeftSlider.setRange(1, 3, 1);
     secondFunctionLeftSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     secondFunctionLeftSlider.setPopupDisplayEnabled(false, false, this);
     secondFunctionLeftSlider.setSliderSnapsToMousePosition(true);
-    secondFunctionLeftSlider.setValue(1);
-    addAndMakeVisible(secondFunctionLeftSlider);
 
     // function labels
     functionLorentzLeftLabel.setText("Lor.", juce::dontSendNotification);
@@ -215,51 +210,45 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     addAndMakeVisible(functionLinearLeftLabel);
 
     // RIGHT CHANNEL SLIDERS
+    addAndMakeVisible(volOneRightSlider);
+    volOneRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "v1R", volOneRightSlider));
     volOneRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    volOneRightSlider.setRange(0.0, 1.0, 0.01);
     volOneRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
     volOneRightSlider.setPopupDisplayEnabled(false, false, this);
-    volOneRightSlider.setValue(0.5);
     volOneRightSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible(volOneRightSlider);
-
+    
+    addAndMakeVisible(volTwoRightSlider);
+    volTwoRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "v2R", volTwoRightSlider));
     volTwoRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    volTwoRightSlider.setRange(0.0, 1.0, 0.01);
     volTwoRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     volTwoRightSlider.setPopupDisplayEnabled(false, false, this);
-    volTwoRightSlider.setValue(0.5);
     volTwoRightSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible(volTwoRightSlider);
 
+    addAndMakeVisible(peakTimeRightSlider);
+    peakTimeRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ptR", peakTimeRightSlider));
     peakTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    peakTimeRightSlider.setRange(0.0, 1.0, 0.01);
     peakTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeRightSlider.setValue(0.5);
     peakTimeRightSlider.setDoubleClickReturnValue(true, 0.5);
-    addAndMakeVisible(peakTimeRightSlider);
 
+    addAndMakeVisible(totalTimeRightSlider);
+    totalTimeRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ttR", totalTimeRightSlider));
     totalTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeRightSlider.setRange(0.1, 2.0, 0.01);      // TODO: Skew so the 1s point is central
     totalTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     totalTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeRightSlider.setValue(1.0);
     totalTimeRightSlider.setDoubleClickReturnValue(true, 1.0);
-    addAndMakeVisible(totalTimeRightSlider);
 
+    addAndMakeVisible(firstFunctionRightSlider);
+    firstFunctionRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffR", firstFunctionRightSlider));
     firstFunctionRightSlider.setSliderStyle(juce::Slider::LinearVertical);
-    firstFunctionRightSlider.setRange(1, 3, 1);
     firstFunctionRightSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     firstFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
-    firstFunctionRightSlider.setValue(1);
-    addAndMakeVisible(firstFunctionRightSlider);
 
+    addAndMakeVisible(secondFunctionRightSlider);
+    secondFunctionRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "sfR", secondFunctionRightSlider));
     secondFunctionRightSlider.setSliderStyle(juce::Slider::LinearVertical);
-    secondFunctionRightSlider.setRange(1, 3, 1);
     secondFunctionRightSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     secondFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
-    secondFunctionRightSlider.setValue(1);
-    addAndMakeVisible(secondFunctionRightSlider);
 
     // function labels
     functionLorentzRightLabel.setText("Lor.", juce::dontSendNotification);
@@ -283,19 +272,19 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p)
     addAndMakeVisible(monoStereoSelector);
 
     // all listeners
-    volOneLeftSlider.addListener(this);
-    volTwoLeftSlider.addListener(this);
-    totalTimeLeftSlider.addListener(this);
-    peakTimeLeftSlider.addListener(this);
-    firstFunctionLeftSlider.addListener(this);
-    secondFunctionLeftSlider.addListener(this);
+    //volOneLeftSlider.addListener(this);
+    //volTwoLeftSlider.addListener(this);
+    //totalTimeLeftSlider.addListener(this);
+    //peakTimeLeftSlider.addListener(this);
+    //firstFunctionLeftSlider.addListener(this);
+    //secondFunctionLeftSlider.addListener(this);
 
-    volOneRightSlider.addListener(this);
-    volTwoRightSlider.addListener(this);
-    totalTimeRightSlider.addListener(this);
-    peakTimeRightSlider.addListener(this);
-    firstFunctionRightSlider.addListener(this);
-    secondFunctionRightSlider.addListener(this);
+    //volOneRightSlider.addListener(this);
+    //volTwoRightSlider.addListener(this);
+    //totalTimeRightSlider.addListener(this);
+    //peakTimeRightSlider.addListener(this);
+    //firstFunctionRightSlider.addListener(this);
+    //secondFunctionRightSlider.addListener(this);
 
     // mono stereo label
     monoLabel.setText("Mono / Stereo", juce::dontSendNotification);
@@ -372,29 +361,6 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
         // todo: implement the mirror function where 
         //       the right volume is the inverse of the left
     }
-
-    audioProcessor.volOneLeft = v1L;
-    audioProcessor.volTwoLeft = v2L;
-    audioProcessor.totalRampTimeLeft = ttL;
-    audioProcessor.peakRampTimeLeft = ptL * ttL;
-
-    audioProcessor.volOneRight = v1R;
-    audioProcessor.volTwoRight = v2R;
-    audioProcessor.totalRampTimeRight = ttR;
-    audioProcessor.peakRampTimeRight = ptR * ttR;
-
-    // function to update the waves class
-    audioProcessor.updateParameters(0, audioProcessor.volOneLeft,
-                                    audioProcessor.volTwoLeft,
-                                    audioProcessor.totalRampTimeLeft,
-                                    audioProcessor.peakRampTimeLeft,
-                                    ffL, sfL);
-
-    audioProcessor.updateParameters(1, audioProcessor.volOneRight,
-                                    audioProcessor.volTwoRight,
-                                    audioProcessor.totalRampTimeRight,
-                                    audioProcessor.peakRampTimeRight,
-                                    ffR, sfR);
 }
 
 //==============================================================================

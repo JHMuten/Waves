@@ -213,7 +213,7 @@ private:
 class WavesAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer, private juce::Slider::Listener
 {
 public:
-    WavesAudioProcessorEditor (WavesAudioProcessor&);
+    WavesAudioProcessorEditor (WavesAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
     ~WavesAudioProcessorEditor() override;
 
     //==============================================================================
@@ -249,6 +249,19 @@ private:
     juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionLorentzLeftLabel;
     juce::Label functionLinearRightLabel, functionSineRightLabel, functionLorentzRightLabel;
 
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volOneLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volTwoLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionLeftAttachment;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volOneRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volTwoRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionRightAttachment;
 
 
     OtherLookAndFeel wavesLookAndFeel; 

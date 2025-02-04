@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
 WavesAudioProcessor::WavesAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -19,9 +20,39 @@ WavesAudioProcessor::WavesAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+#else
+    :
 #endif
+parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
+    { std::make_unique<juce::AudioParameterFloat>("v1L", "Volume One", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("v2L", "Volume Two", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ttL", "Total Time", 0.1f, 2.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ffL", "First Function", 1.0f, 3.0f, 1.0f),
+      std::make_unique<juce::AudioParameterFloat>("sfL", "SecondFunction", 1.0f, 3.0f, 1.0f),
+    
+      std::make_unique<juce::AudioParameterFloat>("v1R", "Volume One", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("v2R", "Volume Two", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ttR", "Total Time", 0.1f, 2.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ffR", "First Function", 1.0f, 3.0f, 1.0f),
+      std::make_unique<juce::AudioParameterFloat>("sfR", "SecondFunction", 1.0f, 3.0f, 1.0f) })
 {
+    volOneLeftParam = parameters.getRawParameterValue("v1L");
+    volTwoLeftParam = parameters.getRawParameterValue("v2L");
+    peakTimeLeftParam = parameters.getRawParameterValue("ptL");
+    totalTimeLeftParam = parameters.getRawParameterValue("ttL");
+    firstFuncLeftParam = parameters.getRawParameterValue("ffL");
+    secondFuncLeftParam = parameters.getRawParameterValue("sfL");
+
+    volOneRightParam = parameters.getRawParameterValue("v1R");
+    volTwoRightParam = parameters.getRawParameterValue("v2R");
+    peakTimeRightParam = parameters.getRawParameterValue("ptR");
+    totalTimeRightParam = parameters.getRawParameterValue("ttR");
+    firstFuncRightParam = parameters.getRawParameterValue("ffR");
+    secondFuncRightParam = parameters.getRawParameterValue("sfR");
+
 }
 
 WavesAudioProcessor::~WavesAudioProcessor()
@@ -132,12 +163,12 @@ bool WavesAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 void WavesAudioProcessor::updateParameters(int channel, float v1, float v2, float trt, float prt, int first, int second)
 {
     // this is only here to convert the gui params to wave params
-    myWaves.setVolumeOne (channel, v1);
-    myWaves.setVolumeTwo (channel, v2);
-    myWaves.setMaxWaveTime (channel, trt);
-    myWaves.setMidWaveTime (channel, prt);
+    //myWaves.setVolumeOne (channel, v1);
+    //myWaves.setVolumeTwo (channel, v2);
+    //myWaves.setMaxWaveTime (channel, trt);
+    //myWaves.setMidWaveTime (channel, prt);
    
-    myWaves.updateFunctions(channel, first, second);
+    //myWaves.updateFunctions(channel, first, second);
 }
 
 
@@ -149,6 +180,38 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    // get values from the parameters valueTreeState
+    const auto volOneLeft = volOneLeftParam->load();
+    const auto volTwoLeft = volTwoLeftParam->load();
+    const auto totalTimeLeft = totalTimeLeftParam->load();
+    const auto peakTimeLeft = peakTimeLeftParam->load();
+
+    const auto firstFuncLeft = juce::roundFloatToInt (firstFuncLeftParam->load());
+    const auto secondFuncLeft = juce::roundFloatToInt (secondFuncLeftParam->load());
+
+    const auto volOneRight = volOneRightParam->load();
+    const auto volTwoRight = volTwoRightParam->load();
+    const auto totalTimeRight = totalTimeRightParam->load();
+    const auto peakTimeRight = peakTimeRightParam->load();
+
+    const auto firstFuncRight = juce::roundFloatToInt(firstFuncRightParam->load());
+    const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
+
+    // set parameters
+    myWaves.setVolumeOne(0, volOneLeft);
+    myWaves.setVolumeTwo(0, volTwoLeft);
+    myWaves.setMaxWaveTime(0, totalTimeLeft);
+    myWaves.setMidWaveTime(0, peakTimeLeft * totalTimeLeft); // peak time as a fraction of total time
+
+    myWaves.setVolumeOne(1, volOneRight);
+    myWaves.setVolumeTwo(1, volTwoRight);
+    myWaves.setMaxWaveTime(1, totalTimeRight);
+    myWaves.setMidWaveTime(1, peakTimeRight * totalTimeRight); // peak time as a fraction of total time
+    
+    // update the functions 
+    myWaves.updateFunctions(0, firstFuncLeft, secondFuncLeft);
+    myWaves.updateFunctions(1, firstFuncRight, secondFuncRight);
 
     // loop over channels
     for (int channel = 0; channel < totalNumInputChannels; channel++)
@@ -178,7 +241,7 @@ bool WavesAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* WavesAudioProcessor::createEditor()
 {
-    return new WavesAudioProcessorEditor (*this);
+    return new WavesAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================
