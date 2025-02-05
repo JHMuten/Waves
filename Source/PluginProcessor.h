@@ -78,16 +78,15 @@ private:
     std::atomic<float>* peakTimeLeftParam = nullptr;
     std::atomic<float>* totalTimeLeftParam = nullptr;
 
-    std::atomic<float>* firstFuncLeftParam = nullptr;  // these are floats because juce's
-    std::atomic<float>* secondFuncLeftParam = nullptr; // getRawParameterValue() only returns floats xd
-
     std::atomic<float>* volOneRightParam = nullptr;
     std::atomic<float>* volTwoRightParam = nullptr;
     std::atomic<float>* peakTimeRightParam = nullptr;
     std::atomic<float>* totalTimeRightParam = nullptr;
 
-    std::atomic<float>* firstFuncRightParam = nullptr;  // these are floats because juce's
-    std::atomic<float>* secondFuncRightParam = nullptr; // getRawParameterValue() only returns floats xd
+    std::atomic<float>* firstFuncLeftParam = nullptr;   // these are floats here because getRawParameterValue()
+    std::atomic<float>* secondFuncLeftParam = nullptr;  // only returns floats, but the sliders use Ints (constructor)
+    std::atomic<float>* firstFuncRightParam = nullptr;  // and the floats are converted to ints when they
+    std::atomic<float>* secondFuncRightParam = nullptr; // are retreived (processBlock)
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WavesAudioProcessor)

@@ -29,15 +29,15 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
       std::make_unique<juce::AudioParameterFloat>("v2L", "Volume Two", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ttL", "Total Time", 0.1f, 2.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("ffL", "First Function", 1.0f, 3.0f, 1.0f),
-      std::make_unique<juce::AudioParameterFloat>("sfL", "SecondFunction", 1.0f, 3.0f, 1.0f),
+      std::make_unique<juce::AudioParameterInt>("ffL", "First Function", 1, 3, 1),
+      std::make_unique<juce::AudioParameterInt>("sfL", "SecondFunction", 1, 3, 1),
     
       std::make_unique<juce::AudioParameterFloat>("v1R", "Volume One", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("v2R", "Volume Two", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ttR", "Total Time", 0.1f, 2.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("ffR", "First Function", 1.0f, 3.0f, 1.0f),
-      std::make_unique<juce::AudioParameterFloat>("sfR", "SecondFunction", 1.0f, 3.0f, 1.0f) })
+      std::make_unique<juce::AudioParameterInt>("ffR", "First Function", 1, 3, 1),
+      std::make_unique<juce::AudioParameterInt>("sfR", "SecondFunction", 1, 3, 1) })
 {
     volOneLeftParam = parameters.getRawParameterValue("v1L");
     volTwoLeftParam = parameters.getRawParameterValue("v2L");
