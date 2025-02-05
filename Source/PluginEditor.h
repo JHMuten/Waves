@@ -98,7 +98,7 @@ private:
     WavesAudioProcessor& audioProcessor;
     VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
     LabelComponent  labelDisplay; // a separate area to label the dials
-    juce::Label monoLabel;
+    juce::Label monoLabel, logoLabel; // make a temporary logo using a label just to get positioning right
     CoverComponent monoCover;
 
     // colour scheme for the editor
@@ -113,8 +113,8 @@ private:
     juce::Slider firstFunctionRightSlider, secondFunctionRightSlider;
     juce::Slider monoStereoSelector;
 
-    juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionLorentzLeftLabel;
-    juce::Label functionLinearRightLabel, functionSineRightLabel, functionLorentzRightLabel;
+    juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionGaussLeftLabel;
+    juce::Label functionLinearRightLabel, functionSineRightLabel, functionGaussRightLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volOneLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volTwoLeftAttachment;

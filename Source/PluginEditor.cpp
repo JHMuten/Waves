@@ -198,9 +198,9 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     secondFunctionLeftSlider.setSliderSnapsToMousePosition(true);
 
     // function labels
-    functionLorentzLeftLabel.setText("Lor.", juce::dontSendNotification);
-    functionLorentzLeftLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(functionLorentzLeftLabel);
+    functionGaussLeftLabel.setText("Gauss.", juce::dontSendNotification);
+    functionGaussLeftLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionGaussLeftLabel);
 
     functionSineLeftLabel.setText ("sine", juce::dontSendNotification);
     functionSineLeftLabel.setJustificationType (juce::Justification::centred);
@@ -252,9 +252,9 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     secondFunctionRightSlider.setPopupDisplayEnabled(false, false, this);
 
     // function labels
-    functionLorentzRightLabel.setText("Lor.", juce::dontSendNotification);
-    functionLorentzRightLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(functionLorentzRightLabel);
+    functionGaussRightLabel.setText("Gauss.", juce::dontSendNotification);
+    functionGaussRightLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(functionGaussRightLabel);
 
     functionSineRightLabel.setText("sine", juce::dontSendNotification);
     functionSineRightLabel.setJustificationType(juce::Justification::centred);
@@ -288,6 +288,13 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(monoLabel);
     monoStereoSelector.addListener(this);
 
+    // logo label
+    logoLabel.setText("Muten\nAudio", juce::dontSendNotification);
+    logoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    logoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    logoLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(logoLabel);
+    
     addAndMakeVisible(labelDisplay);
     addAndMakeVisible(wavesDisplay);
     addAndMakeVisible(monoCover); // making a child component
@@ -380,7 +387,7 @@ void WavesAudioProcessorEditor::resized()
     auto funcLabelHeight = dialHeight / 5;
     auto funcLabelWidth  = dialSpacing / 3;
 
-    functionLorentzLeftLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    functionGaussLeftLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
     functionSineLeftLabel.   setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
     functionLinearLeftLabel. setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
@@ -392,7 +399,7 @@ void WavesAudioProcessorEditor::resized()
     firstFunctionRightSlider. setBounds (4 * dialSpacing + funcWidth,     controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
     secondFunctionRightSlider.setBounds (5 * dialSpacing - 2 * funcWidth, controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
 
-    functionLorentzRightLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    functionGaussRightLabel.setBounds (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
     functionSineRightLabel.setBounds    (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
     functionLinearRightLabel.setBounds  (4.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
@@ -416,6 +423,14 @@ void WavesAudioProcessorEditor::resized()
     // faint grey box to cover stereo controls in mono
     monoCover.setBounds (0, controlsHeightRight, getWidth(), dialHeight);
     //monoCover.toFront(false);
+
+    // want logo to occupy the space of one dial, in the top left corner
+    auto logoXPos = getWidth() * 0.025;
+    auto logoYPos = getHeight() * 0.025;
+    auto logoHeight = getHeight() * 0.2;
+    auto logoWidth = dialWidth;
+    logoLabel.setBounds (logoXPos, logoYPos, logoWidth, logoHeight);
+
 
 }
 
