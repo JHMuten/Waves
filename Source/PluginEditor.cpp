@@ -273,19 +273,12 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(monoStereoSelector);
 
     // all listeners
-    //volOneLeftSlider.addListener(this);
-    //volTwoLeftSlider.addListener(this);
-    //totalTimeLeftSlider.addListener(this);
-    //peakTimeLeftSlider.addListener(this);
-    //firstFunctionLeftSlider.addListener(this);
-    //secondFunctionLeftSlider.addListener(this);
-
-    //volOneRightSlider.addListener(this);
-    //volTwoRightSlider.addListener(this);
-    //totalTimeRightSlider.addListener(this);
-    //peakTimeRightSlider.addListener(this);
-    //firstFunctionRightSlider.addListener(this);
-    //secondFunctionRightSlider.addListener(this);
+    volOneLeftSlider.addListener(this);
+    volTwoLeftSlider.addListener(this);
+    totalTimeLeftSlider.addListener(this);
+    peakTimeLeftSlider.addListener(this);
+    firstFunctionLeftSlider.addListener(this);
+    secondFunctionLeftSlider.addListener(this);
 
     // mono stereo label
     monoLabel.setText("Mono / Stereo", juce::dontSendNotification);
@@ -317,43 +310,21 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
     stereo = monoStereoSelector.getValue();
 
-
-    // Use this classes' sliders to set variables in the audioProcessor class (in PluginProcessor)
-    v1L = volOneLeftSlider.getValue();
-    v2L = volTwoLeftSlider.getValue();
-    ttL = totalTimeLeftSlider.getValue();
-    ptL = peakTimeLeftSlider.getValue();
-    ffL = firstFunctionLeftSlider.getValue();
-    sfL = secondFunctionLeftSlider.getValue();
-
     if (stereo == 0)
     {
-        volOneRightSlider.setValue(v1L);
-        volTwoRightSlider.setValue(v2L);
-        peakTimeRightSlider.setValue(ptL);
-        totalTimeRightSlider.setValue(ttL);
-        firstFunctionRightSlider.setValue(ffL);
-        secondFunctionRightSlider.setValue(sfL);
-
-        v1R = v1L;
-        v2R = v2L;
-        ttR = ttL;
-        ptR = ptL;
-        ffR = ffL;
-        sfR = sfL;
+        // left channel sliders have listeners to make this work
+        // otherwise this function would not be called when the sliders are used
+        volOneRightSlider.setValue (volOneLeftSlider.getValue());
+        volTwoRightSlider.setValue (volTwoLeftSlider.getValue());
+        peakTimeRightSlider.setValue (peakTimeLeftSlider.getValue());
+        totalTimeRightSlider.setValue (totalTimeLeftSlider.getValue());
+        firstFunctionRightSlider.setValue (firstFunctionLeftSlider.getValue());
+        secondFunctionRightSlider.setValue (secondFunctionLeftSlider.getValue());
 
         monoCover.setVisible(true);
-
     }
     else if (stereo == 1)
     {
-        v1R = volOneRightSlider.getValue();
-        v2R = volTwoRightSlider.getValue();
-        ttR = totalTimeRightSlider.getValue();
-        ptR = peakTimeRightSlider.getValue();
-        ffR = firstFunctionRightSlider.getValue();
-        sfR = secondFunctionRightSlider.getValue();
-
         monoCover.setVisible(false);
     }
     else if (stereo == 2)
