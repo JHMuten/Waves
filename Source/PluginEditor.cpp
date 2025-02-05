@@ -143,6 +143,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     setLookAndFeel (&wavesLookAndFeel);
+    wavesLookAndFeel.setColours(primary, secondary, tertiary);
 
     setResizable(true, true);
 
