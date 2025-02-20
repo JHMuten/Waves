@@ -21,6 +21,7 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
     void setLevels(const int channel, std::vector<float> values);
+    void setColours(juce::Colour newPrimary, juce::Colour newSecondary, juce::Colour newTertiary);
 
 private:
     //==============================================================================

@@ -64,7 +64,7 @@ void VisualComponent::paint(juce::Graphics& g)
     g.setColour (tertiary);
     g.strokePath (pathRight, juce::PathStrokeType(lineThickness));
 
-    g.setColour(primary);
+    g.setColour(secondary);
     g.strokePath(pathLeft, juce::PathStrokeType(lineThickness));
 }
 
@@ -76,6 +76,13 @@ void VisualComponent::resized()
 void VisualComponent::setLevels(const int channel, std::vector<float> values)
 {
     displayValues[channel] = values;
+}
+
+void VisualComponent::setColours(juce::Colour newPrimary, juce::Colour newSecondary, juce::Colour newTertiary)
+{
+    primary = newPrimary;
+    secondary = newSecondary;
+    tertiary = newTertiary;
 }
 
 void CoverComponent::paint(juce::Graphics& g)
@@ -297,6 +304,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     
     addAndMakeVisible(labelDisplay);
     addAndMakeVisible(wavesDisplay);
+    wavesDisplay.setColours(primary, secondary, tertiary);
     addAndMakeVisible(monoCover); // making a child component
 
     
