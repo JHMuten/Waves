@@ -295,20 +295,22 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(monoLabel);
     monoStereoSelector.addListener(this);
 
-    // logo label
-    logoLabel.setText("Muten\nAudio", juce::dontSendNotification);
-    logoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    logoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
-    logoLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(logoLabel);
+    //// logo label
+    //logoLabel.setText("Muten\nAudio", juce::dontSendNotification);
+    //logoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    //logoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    //logoLabel.setJustificationType(juce::Justification::centred);
+    //addAndMakeVisible(logoLabel);
     
     addAndMakeVisible(labelDisplay);
     addAndMakeVisible(wavesDisplay);
     wavesDisplay.setColours(primary, secondary, tertiary);
     addAndMakeVisible(monoCover); // making a child component
 
-    
-
+    // load logo image
+    logoImage = juce::ImageFileFormat::loadFrom(BinaryData::waveslogo_png, BinaryData::waveslogo_pngSize);
+    logoComponent.setImage(logoImage);
+    addAndMakeVisible(logoComponent);
 
     // timer to retreive values from the processor
     startTimerHz(24);
@@ -432,13 +434,14 @@ void WavesAudioProcessorEditor::resized()
     monoCover.setBounds (0, controlsHeightRight, getWidth(), dialHeight);
     //monoCover.toFront(false);
 
-    // want logo to occupy the space of one dial, in the top left corner
+    //// want logo to occupy the space of one dial, in the top left corner
     auto logoXPos = getWidth() * 0.025;
     auto logoYPos = getHeight() * 0.025;
     auto logoHeight = getHeight() * 0.2;
     auto logoWidth = dialWidth;
-    logoLabel.setBounds (logoXPos, logoYPos, logoWidth, logoHeight);
+    //logoLabel.setBounds (logoXPos, logoYPos, logoWidth, logoHeight);
 
+    logoComponent.setBounds(logoXPos, logoYPos, logoWidth, logoHeight);
 
 }
 

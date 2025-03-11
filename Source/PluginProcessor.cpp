@@ -126,6 +126,8 @@ void WavesAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+    myWaves.resize(getTotalNumOutputChannels()); // one waves object per output channel (hoping output is the right one to use)
 }
 
 void WavesAudioProcessor::releaseResources()
@@ -160,18 +162,6 @@ bool WavesAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void WavesAudioProcessor::updateParameters(int channel, float v1, float v2, float trt, float prt, int first, int second)
-{
-    // this is only here to convert the gui params to wave params
-    //myWaves.setVolumeOne (channel, v1);
-    //myWaves.setVolumeTwo (channel, v2);
-    //myWaves.setMaxWaveTime (channel, trt);
-    //myWaves.setMidWaveTime (channel, prt);
-   
-    //myWaves.updateFunctions(channel, first, second);
-}
-
-
 void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -198,36 +188,22 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     const auto firstFuncRight = juce::roundFloatToInt(firstFuncRightParam->load());
     const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
 
-    // set parameters
-    myWaves.setVolumeOne(0, volOneLeft);
-    myWaves.setVolumeTwo(0, volTwoLeft);
-    myWaves.setMaxWaveTime(0, totalTimeLeft);
-    myWaves.setMidWaveTime(0, peakTimeLeft * totalTimeLeft); // peak time as a fraction of total time
-
-    myWaves.setVolumeOne(1, volOneRight);
-    myWaves.setVolumeTwo(1, volTwoRight);
-    myWaves.setMaxWaveTime(1, totalTimeRight);
-    myWaves.setMidWaveTime(1, peakTimeRight * totalTimeRight); // peak time as a fraction of total time
-    
-    // update the functions 
-    myWaves.updateFunctions(0, firstFuncLeft, secondFuncLeft);
-    myWaves.updateFunctions(1, firstFuncRight, secondFuncRight);
+    // new version of setting parameters
+    myWaves[0].setParameters(volOneLeft, volTwoLeft, totalTimeLeft, peakTimeLeft * totalTimeLeft);
+    myWaves[0].updateFunctions(firstFuncLeft, secondFuncLeft);
+    myWaves[1].setParameters(volOneRight, volTwoRight, totalTimeRight, peakTimeRight * totalTimeRight);
+    myWaves[1].updateFunctions(firstFuncRight, secondFuncRight);
 
     // loop over channels
     for (int channel = 0; channel < totalNumInputChannels; channel++)
     {
         auto* channelData = buffer.getWritePointer(channel);
-        //auto* wave = myWaves.getNumChannels
         
         // loop over the samples in this buffer
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            auto volumeMultiplier = myWaves.getNext(channel);
+            auto volumeMultiplier = myWaves[channel].getNext(); // should get these once per buffer probably
             channelData[sample] = buffer.getSample(channel, sample) * volumeMultiplier;
-
-            // debug
-            //if (channel == 0) { DBG(std::to_string(sample) + " " + std::to_string(volumeMultiplier)); }
-
         }
     }
    
@@ -268,9 +244,5 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 std::vector<float> WavesAudioProcessor::getFunctionValues(const int channel)
 {
     jassert(channel == 0 || channel == 1);
-    if (channel == 0)
-        return myWaves.getAnyWaveArray(channel);
-    if (channel == 1)
-        return myWaves.getAnyWaveArray(channel);
-    return myWaves.getAnyWaveArray(channel); // TODO: error handling :)
+    return myWaves[channel].getWaveArray(); // TODO: error handling :)
 }

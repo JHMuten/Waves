@@ -99,10 +99,14 @@ private:
     WavesAudioProcessor& audioProcessor;
     VisualComponent wavesDisplay; // new child component that contains the UI elements of the plugin
     LabelComponent  labelDisplay; // a separate area to label the dials
-    juce::Label monoLabel, logoLabel; // make a temporary logo using a label just to get positioning right
+    juce::Label monoLabel; // make a temporary logo using a label just to get positioning right
     CoverComponent monoCover;
 
+    juce::ImageComponent logoComponent;
+    juce::Image logoImage;
+
     // colour scheme for the editor
+    // primary colour in HSV is 207, or hex #98bbd9
     juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.30f, 0.85f, 1.0f); // blue (light)
     juce::Colour secondary = juce::Colour::fromHSV (0.575f, 0.80f, 0.50f, 1.0f); // blue (dark)
     juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange

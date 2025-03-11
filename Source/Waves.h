@@ -4,8 +4,7 @@
     Waves.h
     Created: 4 Feb 2025 2:18:20pm
     Author:  James Muten
-    This currently contains the function definitions and implementations for the 
-    waveArray class and the waves classes (which contains one waveArray per channel)
+    The function definitions and implementations for the Waves class
 
   ==============================================================================
 */
@@ -15,20 +14,113 @@
 #include <cmath>
 
 template <typename Type>
-class WaveArray
+class Waves
 {
 public:
-    WaveArray()
+    //==============================================================================================
+    Waves()
     {
         resize(1);// minimum size set on construction?
-        //offset = 0; // not sure if this needs to be here?
         clear();
     }
 
-    void clear() noexcept
+    void prepare(const juce::dsp::ProcessSpec& spec)
     {
-        std::fill(waveArray.begin(), waveArray.end(), Type(0.0));
+        sampleRate = (float)spec.sampleRate;
+        updateWaveArraySize();
+        //updateWaveTime();
     }
+
+    // returns a volume
+    float get(int sample)
+    {
+        return waveArrays[sample];
+    }
+
+    // Place all parameters from the processor in one go
+    void setParameters(float newVolOne, float newVolTwo, float newTotalTime, float newPeakTime)
+    {
+        volumeOne   = newVolOne;
+        volumeTwo   = newVolTwo;
+        maxWaveTime = newTotalTime;
+        midWaveTime = newPeakTime;
+
+        updateMaxWaveTime();
+        updateWaveArraySize();
+        updateMidWaveTime();
+    }
+
+    void updateFunctions(int first, int second)
+    {
+        // 1 for linear
+        // 2 for sine
+        // 3 for Gaussian
+        if (first == 1 && second == 1)
+        {
+            linearFirstFunction();
+            linearSecondFunction();
+        }
+        else if (first == 1 && second == 2)
+        {
+            linearFirstFunction();
+            sineSecondFunction();
+        }
+        else if (first == 1 && second == 3)
+        {
+            linearFirstFunction();
+            lorSecondFunction();
+        }
+        else if (first == 2 && second == 1)
+        {
+            sineFirstFunction();
+            linearSecondFunction();
+        }
+        else if (first == 2 && second == 2)
+        {
+            sineFirstFunction();
+            sineSecondFunction();
+        }
+        else if (first == 2 && second == 3)
+        {
+            sineFirstFunction();
+            lorSecondFunction();
+        }
+        else if (first == 3 && second == 1)
+        {
+            lorFirstFunction();
+            linearSecondFunction();
+        }
+        else if (first == 3 && second == 2)
+        {
+            lorFirstFunction();
+            sineSecondFunction();
+        }
+        else if (first == 3 && second == 3)
+        {
+            lorFirstFunction();
+            lorSecondFunction();
+        }
+    }
+
+    Type getNext() noexcept
+    {
+        Type output = waveArray[currentSample % size()];
+        currentSample = (currentSample + 1) % size();
+        return output;
+    }
+
+    std::vector<Type>& getWaveArray()
+    {
+        return waveArray;
+    }
+
+    /** Set the specified sample in the delay line */
+    void set(size_t waveSample, Type newValue) noexcept
+    {
+        //jassert(waveSample >= 0 && waveSample < size());
+        waveArray[(waveSample) % size()] = newValue;
+    }
+
 
     size_t size() const noexcept
     {
@@ -42,7 +134,6 @@ public:
             newValue = 1;
         }
         waveArray.resize(newValue);
-        offset = 0;
     }
 
     Type get(size_t waveSample) const noexcept
@@ -51,252 +142,73 @@ public:
         return waveArray[(waveSample) % size()];
     }
 
-    Type getNext() noexcept
-    {
-        Type output = waveArray[currentSample % size()];
-        currentSample = (currentSample + 1) % size();
-        return output;
-    }
-
-    std::vector<Type>& getWaveArray()// passing as a reference now
-    {
-        // returns all elements of the wave array
-        //std::vector<float> output;
-        //output = waveArray;
-        return waveArray; // copy of the array so stuff doesnt get overridden
-    }
-
-    /** Set the specified sample in the delay line */
-    void set(size_t waveSample, Type newValue) noexcept
-    {
-        jassert(waveSample >= 0 && waveSample < size());
-        waveArray[(waveSample) % size()] = newValue;
-    }
-
-    void setOffset(size_t newValue)
-    {
-        jassert(newValue >= 0 && newValue < size());
-        offset = newValue;
-    }
-
-    size_t getOffset()
-    {
-        return offset;
-    }
-
 private:
-    std::vector<Type> waveArray; // a single vector of volume multipliers
-    size_t offset = 0;           // to shift the waveArray away from 0 time
-    size_t leastRecentIndex = 0; // to track which sample has just been used (deprecated)
+
+    // ported params, might want some of these to be private
     size_t currentSample = 0;    // trying to auto return
-};
-//==============================================================================
 
-template <typename Type, int maxNumChannels = 2>
-class Waves
-{
-public:
-    //==============================================================================================
-    Waves()
-    {
-        for (int i = 0; i < maxNumChannels; i++)
-        {
-            //setWaveTime(i, 0.0f);
-            setMaxWaveTime(i, 2.0f);
-            updateWaveArraySize(i);
-            setMidWaveTime(i, 1.0f);
-
-            setVolumeOne(i, 0.25);
-            setVolumeTwo(i, 0.75);
-        }
-    }
-
-    void prepare(const juce::dsp::ProcessSpec& spec)
-    {
-        jassert(spec.numChannels <= maxNumChannels);
-        sampleRate = (float)spec.sampleRate;
-        updateWaveArraySize(0);
-        updateWaveArraySize(1);
-        //updateWaveTime();
-    }
-
-    void reset() noexcept
-    {
-        // clear samples in the wave arrays
-        for (auto wave : waveArrays)
-        {
-            wave.clear();
-        }
-    }
-
-    int getNumChannels() const noexcept
-    {
-        return waveArrays.size();
-    }
-
-    float get(int channel, int sample)
-    {
-        // returns a volume
-        return waveArrays[channel].get(sample);
-    }
-
-    float getNext(int channel)
-    {
-        return waveArrays[channel].getNext();
-    }
-
-    void setVolumeOne(int channel, float newValue)
-    {
-        jassert(newValue >= float(0));
-        volumeOne[channel] = newValue;
-        // update function
-    }
-    void setVolumeTwo(int channel, float newValue)
-    {
-        jassert(newValue >= float(0));
-        volumeTwo[channel] = newValue;
-        // update function
-    }
-
-    void setMaxWaveTime(int channel, float newValue)
-    {
-        if (channel >= getNumChannels())
-        {
-            jassertfalse;
-            return;
-        }
-
-        jassert(newValue >= Type(0));
-        maxWaveTimes[channel] = newValue; // update this classes' list of wave times (again hangover from delay)
-        updateMaxWaveTime(channel); // converts the new wave time in seconds to samples
-        updateWaveArraySize(channel);
-    }
-    void setMidWaveTime(int channel, float newValue)
-    {
-        if (channel >= getNumChannels())
-        {
-            jassertfalse;
-            return;
-        }
-
-        jassert(newValue >= Type(0));
-        midWaveTimes[channel] = newValue; // update this classes' list of wave times (again hangover from delay)
-        updateMidWaveTime(channel); // converts the new wave time in seconds to samples
-    }
-
-    void updateFunctions(int channel, int first, int second)
-    {
-        // 1 for linear
-        // 2 for sine
-        // 3 for Gaussian
-        if (first == 1 && second == 1)
-        {
-            linearFirstFunction(channel);
-            linearSecondFunction(channel);
-        }
-        else if (first == 1 && second == 2)
-        {
-            linearFirstFunction(channel);
-            sineSecondFunction(channel);
-        }
-        else if (first == 1 && second == 3)
-        {
-            linearFirstFunction(channel);
-            lorSecondFunction(channel);
-        }
-        else if (first == 2 && second == 1)
-        {
-            sineFirstFunction(channel);
-            linearSecondFunction(channel);
-        }
-        else if (first == 2 && second == 2)
-        {
-            sineFirstFunction(channel);
-            sineSecondFunction(channel);
-        }
-        else if (first == 2 && second == 3)
-        {
-            sineFirstFunction(channel);
-            lorSecondFunction(channel);
-        }
-        else if (first == 3 && second == 1)
-        {
-            lorFirstFunction(channel);
-            linearSecondFunction(channel);
-        }
-        else if (first == 3 && second == 2)
-        {
-            lorFirstFunction(channel);
-            sineSecondFunction(channel);
-        }
-        else if (first == 3 && second == 3)
-        {
-            lorFirstFunction(channel);
-            lorSecondFunction(channel);
-        }
-    }
-
-    std::vector<float>& getAnyWaveArray(const int channel)
-    {
-        return waveArrays[channel].getWaveArray();
-    }
-
-private:
-    // Wave array for each channel
-    std::array<WaveArray<Type>, maxNumChannels> waveArrays;
+    std::vector<Type> waveArray; // just one waveArray in this class
 
     // End time 
-    std::array<int, maxNumChannels> maxWaveTimesSample;
-    std::array<float, maxNumChannels> maxWaveTimes;
+    int   maxWaveTimeSample;
+    float maxWaveTime;
 
     // Mid time
-    std::array<int, maxNumChannels> midWaveTimesSample;
-    std::array<float, maxNumChannels> midWaveTimes;
+    int   midWaveTimeSample;
+    float midWaveTime;
 
     // Volume arrays: currently not being set
-    std::array<float, maxNumChannels> volumeOne;
-    std::array<float, maxNumChannels> volumeTwo;
+    float volumeOne;
+    float volumeTwo;
 
     // this is the only one that's channel independent
     float sampleRate{ float(44.1e3) };
 
-    void updateWaveArraySize(int channel) // TODO: fix
+
+
+    void clear() noexcept
     {
-        auto waveArraySizeSamples = (int)std::ceil(maxWaveTimes[channel] * sampleRate);
-        waveArrays[channel].resize(waveArraySizeSamples);
+        std::fill(waveArray.begin(), waveArray.end(), Type(0.0));
     }
 
-    void updateMaxWaveTime(int channel) noexcept
+
+    void updateWaveArraySize() // TODO: fix
     {
-        maxWaveTimesSample[channel] = (int)juce::roundToInt(maxWaveTimes[channel] * sampleRate);
+        auto waveArraySizeSamples = (int)std::ceil(maxWaveTime * sampleRate);
+        waveArray.resize(waveArraySizeSamples);
     }
 
-    void updateMidWaveTime(size_t channel) noexcept
+    void updateMaxWaveTime() noexcept
     {
-        midWaveTimesSample[channel] = (size_t)juce::roundToInt(midWaveTimes[channel] * sampleRate);
+        maxWaveTimeSample = (int)juce::roundToInt(maxWaveTime * sampleRate);
     }
 
-    void linearFirstFunction(int ch)
+    void updateMidWaveTime() noexcept
     {
-        float volIncrement = (volumeTwo[ch] - volumeOne[ch]) / midWaveTimesSample[ch];
-        for (int i = 0; i < midWaveTimesSample[ch]; i++)
+        midWaveTimeSample = (size_t)juce::roundToInt(midWaveTime * sampleRate);
+    }
+
+    void linearFirstFunction()
+    {
+        float volIncrement = (volumeTwo - volumeOne) / midWaveTimeSample;
+        for (int i = 0; i < midWaveTimeSample; i++)
         {
-            float value = volumeOne[ch] + i * volIncrement;
-            waveArrays[ch].set(i, value);
+            float value = volumeOne + i * volIncrement;
+            set(i, value);
         }
     }
 
-    void linearSecondFunction(int ch)
+    void linearSecondFunction()
     {
-        float volReduction = (volumeTwo[ch] - volumeOne[ch]) / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
-        for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+        float volReduction = (volumeTwo - volumeOne) / (maxWaveTimeSample - midWaveTimeSample);
+        for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
-            float value = volumeTwo[ch] - (i - midWaveTimesSample[ch]) * volReduction;
-            waveArrays[ch].set(i, value);
+            float value = volumeTwo - (i - midWaveTimeSample) * volReduction;
+            set(i, value);
         }
     }
 
-    void sineFirstFunction(int ch)
+    void sineFirstFunction()
     {
         constexpr double pi = 3.14159265358979323846;
         float cosArg;
@@ -304,25 +216,25 @@ private:
         float sign = -1.0;
 
         // check which of v1 and v2 is larger
-        if (volumeOne[ch] > volumeTwo[ch])
+        if (volumeOne > volumeTwo)
         {
             sign *= -1.0f;
         }
 
-        for (int i = 0; i < midWaveTimesSample[ch]; i++)
+        for (int i = 0; i < midWaveTimeSample; i++)
         {
-            cosArg = i * 1.0f * pi / midWaveTimesSample[ch];
+            cosArg = i * 1.0f * pi / midWaveTimeSample;
             value = std::cos(cosArg); // between 0 and 1
             value *= sign; // invert if v1 > v2
             value = (value + 1) / 2; // between 0 and 1
-            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
+            value += std::min(volumeOne, volumeTwo); // add the smaller value
 
-            waveArrays[ch].set(i, value);
+            set(i, value);
         }
     }
 
-    void sineSecondFunction(int ch)
+    void sineSecondFunction()
     {
         constexpr double pi = 3.14159265358979323846;
         float cosArg;
@@ -330,42 +242,42 @@ private:
         float sign = -1.0;
 
         // check which of v1 and v2 is larger
-        if (volumeOne[ch] > volumeTwo[ch])
+        if (volumeOne > volumeTwo)
         {
             sign *= -1.0f;
         }
 
-        for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+        for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
-            cosArg = (i - midWaveTimesSample[ch]) * 1.0f * pi / (maxWaveTimesSample[ch] - midWaveTimesSample[ch]);
+            cosArg = (i - midWaveTimeSample) * 1.0f * pi / (maxWaveTimeSample - midWaveTimeSample);
             value = std::cos(cosArg - pi); // between 0 and 1
             value *= sign; // invert if v1 > v2
             value = (value + 1) / 2; // between 0 and 1
-            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
+            value += std::min(volumeOne, volumeTwo); // add the smaller value
 
-            waveArrays[ch].set(i, value);
+            set(i, value);
         }
     }
 
-    void lorFirstFunction(int ch)
+    void lorFirstFunction()
     {
         // lorentzian curve
         constexpr double invpi = 0.31830988618379067154;
 
         // check which of v1 and v2 is larger
         auto sign = 1.0f;
-        if (volumeOne[ch] > volumeTwo[ch])
+        if (volumeOne > volumeTwo)
         {
             sign *= -1.0f;
         }
 
         auto value = 1.0f;
         auto arg = 1.0f;
-        auto w = maxWaveTimesSample[ch] * 0.1;
-        for (int i = 0; i < midWaveTimesSample[ch]; i++)
+        auto w = maxWaveTimeSample * 0.1;
+        for (int i = 0; i < midWaveTimeSample; i++)
         {
-            arg = pow(i - midWaveTimesSample[ch], 2);
+            arg = pow(i - midWaveTimeSample, 2);
             arg = -1.0f * arg / pow(w, 2);
             value = std::exp(arg);
 
@@ -373,30 +285,30 @@ private:
             value *= sign; // invert if v1 > v2
             value += 0.5;
 
-            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
+            value += std::min(volumeOne, volumeTwo); // add the smaller value
 
-            waveArrays[ch].set(i, value);
+            set(i, value);
         }
 
     }
 
-    void lorSecondFunction(int ch)
+    void lorSecondFunction()
     {
         constexpr double invpi = 0.31830988618379067154;
 
         auto sign = 1.0f;
-        if (volumeOne[ch] > volumeTwo[ch])
+        if (volumeOne > volumeTwo)
         {
             sign *= -1.0f;
         }
 
         auto value = 1.0f;
         auto arg = 1.0f;
-        auto w = maxWaveTimesSample[ch] * 0.1;
-        for (int i = midWaveTimesSample[ch]; i < maxWaveTimesSample[ch]; i++)
+        auto w = maxWaveTimeSample * 0.1;
+        for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
-            arg = pow(i - midWaveTimesSample[ch], 2);
+            arg = pow(i - midWaveTimeSample, 2);
             arg = -1.0f * arg / pow(w, 2);
             value = std::exp(arg);
 
@@ -404,10 +316,10 @@ private:
             value *= sign; // invert if v1 > v2
             value += 0.5;
 
-            value *= std::abs(volumeTwo[ch] - volumeOne[ch]); // between v1 and v2
-            value += std::min(volumeOne[ch], volumeTwo[ch]); // add the smaller value
+            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
+            value += std::min(volumeOne, volumeTwo); // add the smaller value
 
-            waveArrays[ch].set(i, value);
+            set(i, value);
         }
     }
 };

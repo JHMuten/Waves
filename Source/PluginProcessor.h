@@ -56,19 +56,13 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void updateParameters(int channel, float v1, float v2, float trt, float prt, int first, int second);
     std::vector<float> getFunctionValues(const int channel);
 
-    //==============================================================================
-    // UI controls:
-    float volOneLeft = 0.25, volTwoLeft = 0.75;
-    float totalRampTimeLeft = 2.0, peakRampTimeLeft = 1.0;
-    float volOneRight = 0.25, volTwoRight = 0.75;
-    float totalRampTimeRight = 2.0, peakRampTimeRight = 1.0;
-    
+    //==============================================================================   
     float mSampleRate = 1;
     int totalSamples = 1, peakSamples = 1; 
-    Waves<float> myWaves; // one instance of the waves class (want this to private)
+
+    std::vector<Waves<float>> myWaves;
 
 private:
     //==============================================================================

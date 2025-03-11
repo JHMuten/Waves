@@ -16,6 +16,7 @@
           file="Source/MutenAudioLookAndFeel.h"/>
     <FILE id="L1uzBO" name="Waves.cpp" compile="1" resource="0" file="Source/Waves.cpp"/>
     <FILE id="vJ61qC" name="Waves.h" compile="0" resource="0" file="Source/Waves.h"/>
+    <FILE id="ZuXh5F" name="waveslogo.png" compile="0" resource="1" file="Source/waveslogo.png"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
