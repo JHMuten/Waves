@@ -67,13 +67,11 @@ public:
 private:
     //==============================================================================
     juce::AudioProcessorValueTreeState parameters;
-    std::atomic<float>* volOneLeftParam = nullptr;
-    std::atomic<float>* volTwoLeftParam = nullptr;
+    std::atomic<float>* depthLeftParam = nullptr;
     std::atomic<float>* peakTimeLeftParam = nullptr;
     std::atomic<float>* totalTimeLeftParam = nullptr;
 
-    std::atomic<float>* volOneRightParam = nullptr;
-    std::atomic<float>* volTwoRightParam = nullptr;
+    std::atomic<float>* depthRightParam = nullptr;
     std::atomic<float>* peakTimeRightParam = nullptr;
     std::atomic<float>* totalTimeRightParam = nullptr;
 

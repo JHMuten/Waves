@@ -25,29 +25,29 @@ WavesAudioProcessor::WavesAudioProcessor()
     :
 #endif
 parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
-    { std::make_unique<juce::AudioParameterFloat>("v1L", "Volume One", 0.0f, 1.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("v2L", "Volume Two", 0.0f, 1.0f, 0.5f),
+    { std::make_unique<juce::AudioParameterFloat>("dpL", "Depth", -1.0f, 1.0f, 0.0f),
+      //std::make_unique<juce::AudioParameterFloat>("v2L", "Volume Two", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ttL", "Total Time", 0.1f, 2.0f, 0.5f),
       std::make_unique<juce::AudioParameterInt>("ffL", "First Function", 1, 3, 1),
       std::make_unique<juce::AudioParameterInt>("sfL", "SecondFunction", 1, 3, 1),
     
-      std::make_unique<juce::AudioParameterFloat>("v1R", "Volume One", 0.0f, 1.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("v2R", "Volume Two", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("dpR", "Depth", -1.0f, 1.0f, 0.0f),
+      //std::make_unique<juce::AudioParameterFloat>("v2R", "Volume Two", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("ttR", "Total Time", 0.1f, 2.0f, 0.5f),
       std::make_unique<juce::AudioParameterInt>("ffR", "First Function", 1, 3, 1),
       std::make_unique<juce::AudioParameterInt>("sfR", "SecondFunction", 1, 3, 1) })
 {
-    volOneLeftParam = parameters.getRawParameterValue("v1L");
-    volTwoLeftParam = parameters.getRawParameterValue("v2L");
+    depthLeftParam = parameters.getRawParameterValue("dpL");
+    //volTwoLeftParam = parameters.getRawParameterValue("v2L");
     peakTimeLeftParam = parameters.getRawParameterValue("ptL");
     totalTimeLeftParam = parameters.getRawParameterValue("ttL");
     firstFuncLeftParam = parameters.getRawParameterValue("ffL");
     secondFuncLeftParam = parameters.getRawParameterValue("sfL");
 
-    volOneRightParam = parameters.getRawParameterValue("v1R");
-    volTwoRightParam = parameters.getRawParameterValue("v2R");
+    depthRightParam = parameters.getRawParameterValue("dpR");
+    //volTwoRightParam = parameters.getRawParameterValue("v2R");
     peakTimeRightParam = parameters.getRawParameterValue("ptR");
     totalTimeRightParam = parameters.getRawParameterValue("ttR");
     firstFuncRightParam = parameters.getRawParameterValue("ffR");
@@ -172,26 +172,24 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         buffer.clear (i, 0, buffer.getNumSamples());
 
     // get values from the parameters valueTreeState
-    const auto volOneLeft = volOneLeftParam->load();
-    const auto volTwoLeft = volTwoLeftParam->load();
+    const auto depthLeft     = depthLeftParam->load();
     const auto totalTimeLeft = totalTimeLeftParam->load();
-    const auto peakTimeLeft = peakTimeLeftParam->load();
+    const auto peakTimeLeft  = peakTimeLeftParam->load();
 
-    const auto firstFuncLeft = juce::roundFloatToInt (firstFuncLeftParam->load());
+    const auto firstFuncLeft  = juce::roundFloatToInt (firstFuncLeftParam->load());
     const auto secondFuncLeft = juce::roundFloatToInt (secondFuncLeftParam->load());
 
-    const auto volOneRight = volOneRightParam->load();
-    const auto volTwoRight = volTwoRightParam->load();
+    const auto depthRight     = depthRightParam->load();
     const auto totalTimeRight = totalTimeRightParam->load();
-    const auto peakTimeRight = peakTimeRightParam->load();
+    const auto peakTimeRight  = peakTimeRightParam->load();
 
-    const auto firstFuncRight = juce::roundFloatToInt(firstFuncRightParam->load());
+    const auto firstFuncRight  = juce::roundFloatToInt(firstFuncRightParam->load());
     const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
 
     // new version of setting parameters
-    myWaves[0].setParameters(volOneLeft, volTwoLeft, totalTimeLeft, peakTimeLeft * totalTimeLeft);
+    myWaves[0].setParameters(depthLeft, totalTimeLeft, peakTimeLeft * totalTimeLeft);
     myWaves[0].updateFunctions(firstFuncLeft, secondFuncLeft);
-    myWaves[1].setParameters(volOneRight, volTwoRight, totalTimeRight, peakTimeRight * totalTimeRight);
+    myWaves[1].setParameters(depthRight, totalTimeRight, peakTimeRight * totalTimeRight);
     myWaves[1].updateFunctions(firstFuncRight, secondFuncRight);
 
     // loop over channels

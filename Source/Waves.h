@@ -38,10 +38,9 @@ public:
     }
 
     // Place all parameters from the processor in one go
-    void setParameters(float newVolOne, float newVolTwo, float newTotalTime, float newPeakTime)
+    void setParameters(float newDepth, float newTotalTime, float newPeakTime)
     {
-        volumeOne   = newVolOne;
-        volumeTwo   = newVolTwo;
+        depth       = newDepth;
         maxWaveTime = newTotalTime;
         midWaveTime = newPeakTime;
 
@@ -68,7 +67,7 @@ public:
         else if (first == 1 && second == 3)
         {
             linearFirstFunction();
-            lorSecondFunction();
+            gaussSecondFunction();
         }
         else if (first == 2 && second == 1)
         {
@@ -83,22 +82,22 @@ public:
         else if (first == 2 && second == 3)
         {
             sineFirstFunction();
-            lorSecondFunction();
+            gaussSecondFunction();
         }
         else if (first == 3 && second == 1)
         {
-            lorFirstFunction();
+            gaussFirstFunction();
             linearSecondFunction();
         }
         else if (first == 3 && second == 2)
         {
-            lorFirstFunction();
+            gaussFirstFunction();
             sineSecondFunction();
         }
         else if (first == 3 && second == 3)
         {
-            lorFirstFunction();
-            lorSecondFunction();
+            gaussFirstFunction();
+            gaussSecondFunction();
         }
     }
 
@@ -143,11 +142,9 @@ public:
     }
 
 private:
+    size_t currentSample = 0;    
 
-    // ported params, might want some of these to be private
-    size_t currentSample = 0;    // trying to auto return
-
-    std::vector<Type> waveArray; // just one waveArray in this class
+    std::vector<Type> waveArray;
 
     // End time 
     int   maxWaveTimeSample;
@@ -157,13 +154,10 @@ private:
     int   midWaveTimeSample;
     float midWaveTime;
 
-    // Volume arrays: currently not being set
-    float volumeOne;
-    float volumeTwo;
+    float depth;
 
     // this is the only one that's channel independent
     float sampleRate{ float(44.1e3) };
-
 
 
     void clear() noexcept
@@ -190,20 +184,28 @@ private:
 
     void linearFirstFunction()
     {
-        float volIncrement = (volumeTwo - volumeOne) / midWaveTimeSample;
-        for (int i = 0; i < midWaveTimeSample; i++)
+        //float volIncrement = (volumeTwo - volumeOne) / midWaveTimeSample;
+        float volIncrement = -1.0f * depth / midWaveTimeSample; // temp v1 = depth
+
+        auto startVol = 1.0 + std::min(depth, 0.0f);
+
+
+        for (int i = 0; i <= midWaveTimeSample; i++)
         {
-            float value = volumeOne + i * volIncrement;
+            float value = startVol + i * volIncrement;
             set(i, value);
         }
     }
 
     void linearSecondFunction()
     {
-        float volReduction = (volumeTwo - volumeOne) / (maxWaveTimeSample - midWaveTimeSample);
+        float delta = depth / (maxWaveTimeSample - midWaveTimeSample);
+
+        auto startVol = 1.0 - std::max(depth, 0.0f);
+
         for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
-            float value = volumeTwo - (i - midWaveTimeSample) * volReduction;
+            float value = startVol + (i - midWaveTimeSample) * delta;
             set(i, value);
         }
     }
@@ -213,23 +215,16 @@ private:
         constexpr double pi = 3.14159265358979323846;
         float cosArg;
         float value;
-        float sign = -1.0;
-
-        // check which of v1 and v2 is larger
-        if (volumeOne > volumeTwo)
-        {
-            sign *= -1.0f;
-        }
-
+        auto floor = 1.0f - std::abs(depth);
+        
         for (int i = 0; i < midWaveTimeSample; i++)
         {
-            cosArg = i * 1.0f * pi / midWaveTimeSample;
+            cosArg = i * pi / midWaveTimeSample;
             value = std::cos(cosArg); // between 0 and 1
-            value *= sign; // invert if v1 > v2
+            value *= sgn(depth); // multiply by -sgn(d)
             value = (value + 1) / 2; // between 0 and 1
-            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
-            value += std::min(volumeOne, volumeTwo); // add the smaller value
-
+            value *= std::abs(depth); // between v1 and v2
+            value += floor;
             set(i, value);
         }
     }
@@ -239,42 +234,29 @@ private:
         constexpr double pi = 3.14159265358979323846;
         float cosArg;
         float value;
-        float sign = -1.0;
-
-        // check which of v1 and v2 is larger
-        if (volumeOne > volumeTwo)
-        {
-            sign *= -1.0f;
-        }
+        auto floor = 1.0f - std::abs(depth);
 
         for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
             cosArg = (i - midWaveTimeSample) * 1.0f * pi / (maxWaveTimeSample - midWaveTimeSample);
             value = std::cos(cosArg - pi); // between 0 and 1
-            value *= sign; // invert if v1 > v2
+            value *= sgn(depth); // invert if v1 > v2
             value = (value + 1) / 2; // between 0 and 1
-            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
-            value += std::min(volumeOne, volumeTwo); // add the smaller value
-
+            value *= std::abs(depth); // between v1 and v2
+            value += floor;
             set(i, value);
         }
     }
 
-    void lorFirstFunction()
+    void gaussFirstFunction()
     {
-        // lorentzian curve
+        // gaussian curve
         constexpr double invpi = 0.31830988618379067154;
-
-        // check which of v1 and v2 is larger
-        auto sign = 1.0f;
-        if (volumeOne > volumeTwo)
-        {
-            sign *= -1.0f;
-        }
-
         auto value = 1.0f;
         auto arg = 1.0f;
         auto w = maxWaveTimeSample * 0.1;
+        auto floor = 1.0f - std::abs(depth);
+
         for (int i = 0; i < midWaveTimeSample; i++)
         {
             arg = pow(i - midWaveTimeSample, 2);
@@ -282,30 +264,24 @@ private:
             value = std::exp(arg);
 
             value -= 0.5;
-            value *= sign; // invert if v1 > v2
+            value *= -1.0f * sgn(depth); // invert if v1 > v2
             value += 0.5;
 
-            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
-            value += std::min(volumeOne, volumeTwo); // add the smaller value
+            value *= std::abs(depth); // between v1 and v2
+            value += floor;
 
             set(i, value);
         }
-
     }
 
-    void lorSecondFunction()
+    void gaussSecondFunction()
     {
         constexpr double invpi = 0.31830988618379067154;
-
-        auto sign = 1.0f;
-        if (volumeOne > volumeTwo)
-        {
-            sign *= -1.0f;
-        }
-
         auto value = 1.0f;
         auto arg = 1.0f;
         auto w = maxWaveTimeSample * 0.1;
+        auto floor = 1.0f - std::abs(depth);
+
         for (int i = midWaveTimeSample; i < maxWaveTimeSample; i++)
         {
             arg = pow(i - midWaveTimeSample, 2);
@@ -313,13 +289,18 @@ private:
             value = std::exp(arg);
 
             value -= 0.5;
-            value *= sign; // invert if v1 > v2
+            value *= -1.0f * sgn(depth); // invert if v1 > v2
             value += 0.5;
 
-            value *= std::abs(volumeTwo - volumeOne); // between v1 and v2
-            value += std::min(volumeOne, volumeTwo); // add the smaller value
-
+            value *= std::abs(depth); // between v1 and v2
+            value += floor;
             set(i, value);
         }
+    }
+
+    /* returns +1 for pos, -1 for neg, 0 for 0 */
+    int sgn(float x)
+    {
+        return ((0.0f < x) - (x < 0.0f));
     }
 };

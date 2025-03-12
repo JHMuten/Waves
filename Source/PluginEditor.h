@@ -67,7 +67,7 @@ public:
     void resized() override;
 
 private:
-    juce::Label volOneLabel, volTwoLabel, peakTimeLabel, totalTimeLabel, functionLabel;
+    juce::Label depthLabel, peakTimeLabel, totalTimeLabel, functionLabel;
 
     // colour scheme for label component
     juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
@@ -89,8 +89,6 @@ public:
     void resized() override;
 
     // volumes, total / peak times, first / second functions for left and right channels
-    float v1L, v2L, ttL, ptL, ffL, sfL;
-    float v1R, v2R, ttR, ptR, ffR, sfR;
     int stereo = 0;
     void timerCallback() override;
 
@@ -112,8 +110,8 @@ private:
     juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange
 
     //==============================================================================
-    juce::Slider volOneLeftSlider, volTwoLeftSlider, totalTimeLeftSlider, peakTimeLeftSlider;
-    juce::Slider volOneRightSlider, volTwoRightSlider, totalTimeRightSlider, peakTimeRightSlider;
+    juce::Slider depthLeftSlider, totalTimeLeftSlider, peakTimeLeftSlider;
+    juce::Slider depthRightSlider, totalTimeRightSlider, peakTimeRightSlider;
     juce::Slider firstFunctionLeftSlider, secondFunctionLeftSlider;
     juce::Slider firstFunctionRightSlider, secondFunctionRightSlider;
     juce::Slider monoStereoSelector;
@@ -121,15 +119,13 @@ private:
     juce::Label functionLinearLeftLabel, functionSineLeftLabel, functionGaussLeftLabel;
     juce::Label functionLinearRightLabel, functionSineRightLabel, functionGaussRightLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volOneLeftAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volTwoLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> depthLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionLeftAttachment;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volOneRightAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volTwoRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> depthRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionRightAttachment;
