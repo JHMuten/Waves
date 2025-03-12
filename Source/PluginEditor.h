@@ -26,11 +26,11 @@ public:
 private:
     //==============================================================================
     // colour scheme for visual component
-    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
-    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
-    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
+    juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV (0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.3f, 0.85f, 1.0f); // orange
 
-    std::vector<std::vector<float>> displayValues{{0, 1}, { 0,1 }};
+    std::vector<std::vector<float>> displayValues{{0, 1}, {0, 1}};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VisualComponent)
 };
@@ -48,9 +48,9 @@ public:
 private:
     //==============================================================================
     // colour scheme for visual component
-    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f);   // blue (light)
-    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
-    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f);  // orange
+    juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f);   // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV (0.920f, 0.8f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.3f, 0.85f, 1.0f);  // orange
 
     juce::Colour coverColour = juce::Colours::grey;
 
@@ -70,9 +70,9 @@ private:
     juce::Label volOneLabel, volTwoLabel, peakTimeLabel, totalTimeLabel, functionLabel;
 
     // colour scheme for label component
-    juce::Colour primary = juce::Colour::fromHSV(0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
-    juce::Colour secondary = juce::Colour::fromHSV(0.92f, 0.80f, 0.50f, 1.0f); // blue (dark)
-    juce::Colour tertiary = juce::Colour::fromHSV(0.075f, 0.3f, 0.85f, 1.0f); // orange
+    juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
+    juce::Colour secondary = juce::Colour::fromHSV (0.920f, 0.8f, 0.50f, 1.0f); // blue (dark)
+    juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.3f, 0.85f, 1.0f); // orange
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LabelComponent)
 };

@@ -94,33 +94,33 @@ LabelComponent::LabelComponent()
 {
     // define the four labels
 
-    volOneLabel.setText("volume one", juce::dontSendNotification);
+    volOneLabel.setText("Volume One", juce::dontSendNotification);
     volOneLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    volOneLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    volOneLabel.setColour(juce::Label::backgroundColourId, primary);
     volOneLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(volOneLabel);
 
-    volTwoLabel.setText("volume two", juce::dontSendNotification);
+    volTwoLabel.setText("Volume Two", juce::dontSendNotification);
     volTwoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    volTwoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    volTwoLabel.setColour(juce::Label::backgroundColourId, primary);
     volTwoLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(volTwoLabel);
 
-    totalTimeLabel.setText("time", juce::dontSendNotification);
+    totalTimeLabel.setText("Speed", juce::dontSendNotification);
     totalTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    totalTimeLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    totalTimeLabel.setColour(juce::Label::backgroundColourId, primary);
     totalTimeLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(totalTimeLabel);
 
-    peakTimeLabel.setText("peak", juce::dontSendNotification);
+    peakTimeLabel.setText("Skew", juce::dontSendNotification);
     peakTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    peakTimeLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    peakTimeLabel.setColour(juce::Label::backgroundColourId, primary);
     peakTimeLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(peakTimeLabel);
 
-    functionLabel.setText("function", juce::dontSendNotification);
+    functionLabel.setText("Function", juce::dontSendNotification);
     functionLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    functionLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    functionLabel.setColour(juce::Label::backgroundColourId, primary);
     functionLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(functionLabel);
 
@@ -290,7 +290,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     // mono stereo label
     monoLabel.setText("Mono / Stereo", juce::dontSendNotification);
     monoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    monoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    monoLabel.setColour(juce::Label::backgroundColourId, primary);
     monoLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(monoLabel);
     monoStereoSelector.addListener(this);
