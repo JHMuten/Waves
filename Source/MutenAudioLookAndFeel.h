@@ -148,6 +148,13 @@ public:
                 leftIndent + offset, yIndent + offset, textWidth, button.getHeight() - yIndent * 2 - edge,
                 juce::Justification::centred, 2);
     }
+
+
+    //juce::String getTextFromValue(double value) override
+    //{
+    //    return juce::String(value, getNumDecimalPlacesToDisplay());
+    //}
+
 private:
     // colour scheme for look and feel
     // default colours in case the new constructor isnt used

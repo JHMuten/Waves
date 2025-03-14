@@ -25,30 +25,55 @@ WavesAudioProcessor::WavesAudioProcessor()
     :
 #endif
 parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
-    { std::make_unique<juce::AudioParameterFloat>("dpL", "Depth", -1.0f, 1.0f, 0.0f),
+    { std::make_unique<juce::AudioParameterFloat>("dpL", "Depth",
+                                                   juce::NormalisableRange<float> (-20.0f, 20.0f, 0.01f),
+                                                   0.0f,
+                                                   juce::String(),
+                                                   juce::AudioProcessorParameter::genericParameter,
+                                                   [](float value, int) { return juce::String(value, 1) + " dB"; },
+                                                   [](const juce::String& text) { return text.getFloatValue(); }),
       std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("spL", "Speed", 60.0f, 200.0f, 120.0f),
+      std::make_unique<juce::AudioParameterFloat>("spL", "Speed",
+                                                   juce::NormalisableRange<float>(60.0f, 240.0f, 1.0f),
+                                                   150.0f,
+                                                   juce::String(),
+                                                   juce::AudioProcessorParameter::genericParameter,
+                                                   [](float value, int) { return juce::String(value, 0) + " bpm"; },
+                                                   [](const juce::String& text) { return text.getFloatValue(); }),
+
       std::make_unique<juce::AudioParameterInt>("ffL", "First Function", 1, 3, 1),
       std::make_unique<juce::AudioParameterInt>("sfL", "SecondFunction", 1, 3, 1),
     
-      std::make_unique<juce::AudioParameterFloat>("dpR", "Depth", -1.0f, 1.0f, 0.0f),
+      std::make_unique<juce::AudioParameterFloat>("dpR", "Depth",
+                                                   juce::NormalisableRange<float>(-20.0f, 20.0f, 0.01f),
+                                                   0.0f,
+                                                   juce::String(),
+                                                   juce::AudioProcessorParameter::genericParameter,
+                                                   [](float value, int) { return juce::String(value, 1) + " dB"; },
+                                                   [](const juce::String& text) { return text.getFloatValue(); }),
       std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
-      std::make_unique<juce::AudioParameterFloat>("spR", "Speed", 60.0f, 200.0f, 120.0f),
+      std::make_unique<juce::AudioParameterFloat>("spR", "Speed",
+                                                   juce::NormalisableRange<float>(60.0f, 240.0f, 1.0f),
+                                                   150.0f,
+                                                   juce::String(),
+                                                   juce::AudioProcessorParameter::genericParameter,
+                                                   [](float value, int) { return juce::String(value, 0) + " bpm"; },
+                                                   [](const juce::String& text) { return text.getFloatValue(); }),
+
       std::make_unique<juce::AudioParameterInt>("ffR", "First Function", 1, 3, 1),
       std::make_unique<juce::AudioParameterInt>("sfR", "SecondFunction", 1, 3, 1) })
 {
-    depthLeftParam = parameters.getRawParameterValue("dpL");
+    depthLeftParam      = parameters.getRawParameterValue("dpL");
     peakTimeLeftParam   = parameters.getRawParameterValue("ptL");
-    speedLeftParam = parameters.getRawParameterValue("spL");
+    speedLeftParam      = parameters.getRawParameterValue("spL");
     firstFuncLeftParam  = parameters.getRawParameterValue("ffL");
     secondFuncLeftParam = parameters.getRawParameterValue("sfL");
 
-    depthRightParam = parameters.getRawParameterValue("dpR");
+    depthRightParam      = parameters.getRawParameterValue("dpR");
     peakTimeRightParam   = parameters.getRawParameterValue("ptR");
     speedRightParam      = parameters.getRawParameterValue("spR");
     firstFuncRightParam  = parameters.getRawParameterValue("ffR");
     secondFuncRightParam = parameters.getRawParameterValue("sfR");
-
 }
 
 WavesAudioProcessor::~WavesAudioProcessor()
@@ -168,19 +193,25 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         buffer.clear (i, 0, buffer.getNumSamples());
 
     // get values from the parameters valueTreeState
-    const auto depthLeft     = depthLeftParam->load();
+    auto depthLeftTmp     = depthLeftParam->load();
     const auto speedLeft     = speedLeftParam->load();
     const auto peakTimeLeft  = peakTimeLeftParam->load();
 
     const auto firstFuncLeft  = juce::roundFloatToInt (firstFuncLeftParam->load());
     const auto secondFuncLeft = juce::roundFloatToInt (secondFuncLeftParam->load());
 
-    const auto depthRight     = depthRightParam->load();
+    auto depthRightTmp     = depthRightParam->load();
     const auto speedRight     = speedRightParam->load();
     const auto peakTimeRight  = peakTimeRightParam->load();
 
     const auto firstFuncRight  = juce::roundFloatToInt(firstFuncRightParam->load());
     const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
+
+    // convert decibels to amplitude
+    auto depthLeft  = 1.0f - std::pow(10.0f, -std::abs(depthLeftTmp) / 20.0f);
+    auto depthRight = 1.0f - std::pow(10.0f, -std::abs(depthRightTmp) / 20.0f);
+
+
 
     // convert speed into time:
     const auto totalTimeLeft  = 60.0f / speedLeft;

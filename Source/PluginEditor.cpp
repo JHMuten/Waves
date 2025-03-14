@@ -157,7 +157,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(depthLeftSlider);
     depthLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "dpL", depthLeftSlider));
     depthLeftSlider.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-    depthLeftSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 20);
+    depthLeftSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 50, 20);
     depthLeftSlider.setPopupDisplayEnabled (false, false, this);
     depthLeftSlider.setDoubleClickReturnValue(true, 0.0f);
 
@@ -166,14 +166,14 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     peakTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     peakTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeLeftSlider.setDoubleClickReturnValue(true, 0.5);
+    peakTimeLeftSlider.setDoubleClickReturnValue(true, 0.5f);
 
     addAndMakeVisible(speedLeftSlider);
     speedLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "spL", speedLeftSlider));
     speedLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     speedLeftSlider.setPopupDisplayEnabled(false, false, this);
-    speedLeftSlider.setDoubleClickReturnValue(true, 1.0);
+    speedLeftSlider.setDoubleClickReturnValue(true, 150.0f);
     addAndMakeVisible(speedLeftSlider);
 
     addAndMakeVisible(firstFunctionLeftSlider);
@@ -207,23 +207,23 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(depthRightSlider);
     depthRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "dpR", depthRightSlider));
     depthRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    depthRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    depthRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     depthRightSlider.setPopupDisplayEnabled(false, false, this);
-    depthRightSlider.setDoubleClickReturnValue(true, 0.5);
+    depthRightSlider.setDoubleClickReturnValue(true, 0.0f);
     
     addAndMakeVisible(peakTimeRightSlider);
     peakTimeRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ptR", peakTimeRightSlider));
     peakTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     peakTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     peakTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    peakTimeRightSlider.setDoubleClickReturnValue(true, 0.5);
+    peakTimeRightSlider.setDoubleClickReturnValue(true, 0.5f);
 
     addAndMakeVisible(speedRightSlider);
     speedRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "spR", speedRightSlider));
     speedRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     speedRightSlider.setPopupDisplayEnabled(false, false, this);
-    speedRightSlider.setDoubleClickReturnValue(true, 1.0);
+    speedRightSlider.setDoubleClickReturnValue(true, 150.0f);
 
     addAndMakeVisible(firstFunctionRightSlider);
     firstFunctionRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffR", firstFunctionRightSlider));
