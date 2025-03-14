@@ -67,7 +67,7 @@ public:
     void resized() override;
 
 private:
-    juce::Label depthLabel, peakTimeLabel, totalTimeLabel, functionLabel;
+    juce::Label depthLabel, peakTimeLabel, speedLabel, functionLabel;
 
     // colour scheme for label component
     juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.3f, 0.85f, 1.0f); // blue (light)
@@ -110,8 +110,8 @@ private:
     juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange
 
     //==============================================================================
-    juce::Slider depthLeftSlider, totalTimeLeftSlider, peakTimeLeftSlider;
-    juce::Slider depthRightSlider, totalTimeRightSlider, peakTimeRightSlider;
+    juce::Slider depthLeftSlider, speedLeftSlider, peakTimeLeftSlider;
+    juce::Slider depthRightSlider, speedRightSlider, peakTimeRightSlider;
     juce::Slider firstFunctionLeftSlider, secondFunctionLeftSlider;
     juce::Slider firstFunctionRightSlider, secondFunctionRightSlider;
     juce::Slider monoStereoSelector;
@@ -121,13 +121,13 @@ private:
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> depthLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeLeftAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeLeftAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> speedLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionLeftAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionLeftAttachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> depthRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> peakTimeRightAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> totalTimeRightAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> speedRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionRightAttachment;
 

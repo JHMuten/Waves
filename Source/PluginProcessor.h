@@ -70,10 +70,12 @@ private:
     std::atomic<float>* depthLeftParam = nullptr;
     std::atomic<float>* peakTimeLeftParam = nullptr;
     std::atomic<float>* totalTimeLeftParam = nullptr;
+    std::atomic<float>* speedLeftParam = nullptr;
 
     std::atomic<float>* depthRightParam = nullptr;
     std::atomic<float>* peakTimeRightParam = nullptr;
     std::atomic<float>* totalTimeRightParam = nullptr;
+    std::atomic<float>* speedRightParam = nullptr;
 
     std::atomic<float>* firstFuncLeftParam = nullptr;   // these are floats here because getRawParameterValue()
     std::atomic<float>* secondFuncLeftParam = nullptr;  // only returns floats, but the sliders use Ints (constructor)

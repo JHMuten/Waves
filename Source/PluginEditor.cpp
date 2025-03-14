@@ -100,11 +100,11 @@ LabelComponent::LabelComponent()
     depthLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(depthLabel);
 
-    totalTimeLabel.setText("Speed", juce::dontSendNotification);
-    totalTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    totalTimeLabel.setColour(juce::Label::backgroundColourId, primary);
-    totalTimeLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(totalTimeLabel);
+    speedLabel.setText("Speed", juce::dontSendNotification);
+    speedLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    speedLabel.setColour(juce::Label::backgroundColourId, primary);
+    speedLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(speedLabel);
 
     peakTimeLabel.setText("Skew", juce::dontSendNotification);
     peakTimeLabel.setColour(juce::Label::textColourId, juce::Colours::black);
@@ -134,7 +134,7 @@ void LabelComponent::resized()
 
     depthLabel.setBounds     (labelHorizontalBorder,                  labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
     peakTimeLabel.setBounds  (labelHorizontalBorder + 1 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
-    totalTimeLabel.setBounds (labelHorizontalBorder + 2 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
+    speedLabel.setBounds (labelHorizontalBorder + 2 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
     functionLabel.setBounds  (labelHorizontalBorder + 3 * labelWidth, labelHeightPos, labelWidth - 2 * labelHorizontalBorder, labelHeight);
 }
 
@@ -168,13 +168,13 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     peakTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
     peakTimeLeftSlider.setDoubleClickReturnValue(true, 0.5);
 
-    addAndMakeVisible(totalTimeLeftSlider);
-    totalTimeLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ttL", totalTimeLeftSlider));
-    totalTimeLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    totalTimeLeftSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeLeftSlider.setDoubleClickReturnValue(true, 1.0);
-    addAndMakeVisible(totalTimeLeftSlider);
+    addAndMakeVisible(speedLeftSlider);
+    speedLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "spL", speedLeftSlider));
+    speedLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    speedLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    speedLeftSlider.setPopupDisplayEnabled(false, false, this);
+    speedLeftSlider.setDoubleClickReturnValue(true, 1.0);
+    addAndMakeVisible(speedLeftSlider);
 
     addAndMakeVisible(firstFunctionLeftSlider);
     firstFunctionLeftAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffL", firstFunctionLeftSlider));
@@ -218,12 +218,12 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     peakTimeRightSlider.setPopupDisplayEnabled(false, false, this);
     peakTimeRightSlider.setDoubleClickReturnValue(true, 0.5);
 
-    addAndMakeVisible(totalTimeRightSlider);
-    totalTimeRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ttR", totalTimeRightSlider));
-    totalTimeRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    totalTimeRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    totalTimeRightSlider.setPopupDisplayEnabled(false, false, this);
-    totalTimeRightSlider.setDoubleClickReturnValue(true, 1.0);
+    addAndMakeVisible(speedRightSlider);
+    speedRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "spR", speedRightSlider));
+    speedRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    speedRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    speedRightSlider.setPopupDisplayEnabled(false, false, this);
+    speedRightSlider.setDoubleClickReturnValue(true, 1.0);
 
     addAndMakeVisible(firstFunctionRightSlider);
     firstFunctionRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffR", firstFunctionRightSlider));
@@ -260,7 +260,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
 
     // all listeners
     depthLeftSlider.addListener(this);
-    totalTimeLeftSlider.addListener(this);
+    speedLeftSlider.addListener(this);
     peakTimeLeftSlider.addListener(this);
     firstFunctionLeftSlider.addListener(this);
     secondFunctionLeftSlider.addListener(this);
@@ -311,7 +311,7 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
         // otherwise this function would not be called when the sliders are used
         depthRightSlider.setValue (depthLeftSlider.getValue());
         peakTimeRightSlider.setValue (peakTimeLeftSlider.getValue());
-        totalTimeRightSlider.setValue (totalTimeLeftSlider.getValue());
+        speedRightSlider.setValue (speedLeftSlider.getValue());
         firstFunctionRightSlider.setValue (firstFunctionLeftSlider.getValue());
         secondFunctionRightSlider.setValue (secondFunctionLeftSlider.getValue());
 
@@ -362,7 +362,7 @@ void WavesAudioProcessorEditor::resized()
 
     depthLeftSlider.setBounds     (dialXPos,                   controlsHeightLeft, dialWidth - border, dialHeight - border);
     peakTimeLeftSlider.setBounds  (dialXPos + dialSpacing,     controlsHeightLeft, dialWidth - border, dialHeight - border);
-    totalTimeLeftSlider.setBounds (dialXPos + 2 * dialSpacing, controlsHeightLeft, dialWidth - border, dialHeight - border);
+    speedLeftSlider.setBounds (dialXPos + 2 * dialSpacing, controlsHeightLeft, dialWidth - border, dialHeight - border);
 
     auto funcWidth  = dialSpacing / 6;
     auto funcHeight = dialHeight * 0.6;
@@ -379,7 +379,7 @@ void WavesAudioProcessorEditor::resized()
 
     depthRightSlider.setBounds     (dialXPos,                   controlsHeightRight, dialWidth - border, dialHeight - border);
     peakTimeRightSlider.setBounds  (dialXPos + dialSpacing,     controlsHeightRight, dialWidth - border, dialHeight - border);
-    totalTimeRightSlider.setBounds (dialXPos + 2 * dialSpacing, controlsHeightRight, dialWidth - border, dialHeight - border);
+    speedRightSlider.setBounds (dialXPos + 2 * dialSpacing, controlsHeightRight, dialWidth - border, dialHeight - border);
 
     firstFunctionRightSlider. setBounds (3 * dialSpacing + funcWidth,     controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
     secondFunctionRightSlider.setBounds (4 * dialSpacing - 2 * funcWidth, controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
