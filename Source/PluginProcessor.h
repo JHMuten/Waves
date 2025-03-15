@@ -82,6 +82,10 @@ private:
     std::atomic<float>* firstFuncRightParam = nullptr;  // and the floats are converted to ints when they
     std::atomic<float>* secondFuncRightParam = nullptr; // are retreived (processBlock)
 
+    /* returns +1 for pos, -1 for neg, 0 for 0 */
+    int sgn(float x) { return ((0.0f < x) - (x < 0.0f)); }
+
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WavesAudioProcessor)
 };

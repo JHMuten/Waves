@@ -30,7 +30,7 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
                                                    0.0f,
                                                    juce::String(),
                                                    juce::AudioProcessorParameter::genericParameter,
-                                                   [](float value, int) { return juce::String(value, 1) + " dB"; },
+                                                   [](float value, int) { return "-" + juce::String(std::abs(value), 1) + " dB"; },
                                                    [](const juce::String& text) { return text.getFloatValue(); }),
       std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("spL", "Speed",
@@ -49,7 +49,7 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
                                                    0.0f,
                                                    juce::String(),
                                                    juce::AudioProcessorParameter::genericParameter,
-                                                   [](float value, int) { return juce::String(value, 1) + " dB"; },
+                                                   [](float value, int) { return "-" + juce::String(std::abs(value), 1) + " dB"; },
                                                    [](const juce::String& text) { return text.getFloatValue(); }),
       std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("spR", "Speed",
@@ -193,14 +193,14 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         buffer.clear (i, 0, buffer.getNumSamples());
 
     // get values from the parameters valueTreeState
-    auto depthLeftTmp     = depthLeftParam->load();
+    auto depthLeft     = depthLeftParam->load();
     const auto speedLeft     = speedLeftParam->load();
     const auto peakTimeLeft  = peakTimeLeftParam->load();
 
     const auto firstFuncLeft  = juce::roundFloatToInt (firstFuncLeftParam->load());
     const auto secondFuncLeft = juce::roundFloatToInt (secondFuncLeftParam->load());
 
-    auto depthRightTmp     = depthRightParam->load();
+    auto depthRight     = depthRightParam->load();
     const auto speedRight     = speedRightParam->load();
     const auto peakTimeRight  = peakTimeRightParam->load();
 
@@ -208,10 +208,8 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
 
     // convert decibels to amplitude
-    auto depthLeft  = 1.0f - std::pow(10.0f, -std::abs(depthLeftTmp) / 20.0f);
-    auto depthRight = 1.0f - std::pow(10.0f, -std::abs(depthRightTmp) / 20.0f);
-
-
+    depthLeft  = sgn(depthLeft) * (1.0f - std::pow(10.0f, -std::abs(depthLeft) / 20.0f));
+    depthRight = sgn(depthRight) * (1.0f - std::pow(10.0f, -std::abs(depthRight) / 20.0f));
 
     // convert speed into time:
     const auto totalTimeLeft  = 60.0f / speedLeft;

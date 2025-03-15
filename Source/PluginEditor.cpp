@@ -290,6 +290,15 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     logoComponent.setImage(logoImage);
     addAndMakeVisible(logoComponent);
 
+    // load function images
+    functionImageLeft = juce::ImageFileFormat::loadFrom(BinaryData::wavesFunctionSymbols_png, BinaryData::wavesFunctionSymbols_pngSize);
+    functionComponentLeft.setImage(functionImageLeft);
+    addAndMakeVisible(functionComponentLeft);
+
+    functionImageRight = juce::ImageFileFormat::loadFrom(BinaryData::wavesFunctionSymbolsAlt_png, BinaryData::wavesFunctionSymbolsAlt_pngSize);
+    functionComponentRight.setImage(functionImageRight);
+    addAndMakeVisible(functionComponentRight);
+
     // timer to retreive values from the processor
     startTimerHz(24);
 }
@@ -321,23 +330,13 @@ void WavesAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
     {
         monoCover.setVisible(false);
     }
-    else if (stereo == 2)
-    {
-        monoCover.setVisible(false);
-        // todo: implement the mirror function where 
-        //       the right volume is the inverse of the left
-    }
 }
 
 //==============================================================================
 void WavesAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    //g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (15.0f));
     g.fillAll(primary);
-
-    //g.setColour(juce::Colours::grey);
-    //g.fillRect(monoCover);
 }
 
 void WavesAudioProcessorEditor::resized()
@@ -373,9 +372,13 @@ void WavesAudioProcessorEditor::resized()
     auto funcLabelHeight = dialHeight / 5;
     auto funcLabelWidth  = dialSpacing / 3;
 
-    functionGaussLeftLabel.setBounds   (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
-    functionSineLeftLabel.   setBounds (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
-    functionLinearLeftLabel. setBounds (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
+    functionComponentLeft.setBounds(3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight, funcLabelWidth, 3 * funcLabelHeight);
+
+    functionComponentRight.setBounds(3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight, funcLabelWidth, 3 * funcLabelHeight);
+
+    //functionGaussLeftLabel.setBounds   (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    //functionSineLeftLabel.   setBounds (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
+    //functionLinearLeftLabel. setBounds (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightLeft + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
     depthRightSlider.setBounds     (dialXPos,                   controlsHeightRight, dialWidth - border, dialHeight - border);
     peakTimeRightSlider.setBounds  (dialXPos + dialSpacing,     controlsHeightRight, dialWidth - border, dialHeight - border);
@@ -384,9 +387,9 @@ void WavesAudioProcessorEditor::resized()
     firstFunctionRightSlider. setBounds (3 * dialSpacing + funcWidth,     controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
     secondFunctionRightSlider.setBounds (4 * dialSpacing - 2 * funcWidth, controlsHeightRight + dialHeight * 0.1, funcWidth, funcHeight);
 
-    functionGaussRightLabel.setBounds   (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
-    functionSineRightLabel.setBounds    (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
-    functionLinearRightLabel.setBounds  (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
+    //functionGaussRightLabel.setBounds   (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight,                       funcLabelWidth, funcLabelHeight);
+    //functionSineRightLabel.setBounds    (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + funcLabelHeight,     funcLabelWidth, funcLabelHeight);
+    //functionLinearRightLabel.setBounds  (3.5 * dialSpacing - 0.5 * funcLabelWidth, controlsHeightRight + 0.1 * dialHeight + 2 * funcLabelHeight, funcLabelWidth, funcLabelHeight);
 
     // strip showing the dial labels, should always be just above the dial area
     auto labelHeight = getHeight() * 0.05;

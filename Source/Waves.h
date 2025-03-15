@@ -264,10 +264,10 @@ private:
             value = std::exp(arg);
 
             value -= 0.5;
-            value *= -1.0f * sgn(depth); // invert if v1 > v2
+            value *= -1.0f * sgn(depth);
             value += 0.5;
 
-            value *= std::abs(depth); // between v1 and v2
+            value *= std::abs(depth);
             value += floor;
 
             set(i, value);

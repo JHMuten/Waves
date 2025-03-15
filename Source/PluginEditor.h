@@ -102,12 +102,14 @@ private:
 
     juce::ImageComponent logoComponent;
     juce::Image logoImage;
+    juce::ImageComponent functionComponentLeft, functionComponentRight;
+    juce::Image functionImageLeft, functionImageRight;
 
     // colour scheme for the editor
     // primary colour in HSV is 207, or hex #98bbd9
     juce::Colour primary   = juce::Colour::fromHSV (0.575f, 0.30f, 0.85f, 1.0f); // blue (light)
-    juce::Colour secondary = juce::Colour::fromHSV (0.575f, 0.80f, 0.50f, 1.0f); // blue (dark)
-    juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange
+    juce::Colour secondary = juce::Colour::fromHSV (0.575f, 0.80f, 0.50f, 1.0f); // blue (dark) 195280ff
+    juce::Colour tertiary  = juce::Colour::fromHSV (0.075f, 0.80f, 1.00f, 1.0f); // orange #ff8f33
 
     //==============================================================================
     juce::Slider depthLeftSlider, speedLeftSlider, peakTimeLeftSlider;
