@@ -197,15 +197,15 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     const auto speedLeft     = speedLeftParam->load();
     const auto peakTimeLeft  = peakTimeLeftParam->load();
 
-    const auto firstFuncLeft  = juce::roundFloatToInt (firstFuncLeftParam->load());
-    const auto secondFuncLeft = juce::roundFloatToInt (secondFuncLeftParam->load());
+    const auto firstFuncLeft  = juce::roundToInt (firstFuncLeftParam->load());
+    const auto secondFuncLeft = juce::roundToInt (secondFuncLeftParam->load());
 
     auto depthRight     = depthRightParam->load();
     const auto speedRight     = speedRightParam->load();
     const auto peakTimeRight  = peakTimeRightParam->load();
 
-    const auto firstFuncRight  = juce::roundFloatToInt(firstFuncRightParam->load());
-    const auto secondFuncRight = juce::roundFloatToInt(secondFuncRightParam->load());
+    const auto firstFuncRight  = juce::roundToInt(firstFuncRightParam->load());
+    const auto secondFuncRight = juce::roundToInt(secondFuncRightParam->load());
 
     // convert decibels to amplitude
     depthLeft  = sgn(depthLeft) * (1.0f - std::pow(10.0f, -std::abs(depthLeft) / 20.0f));
@@ -253,12 +253,19 @@ void WavesAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    auto state = parameters.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void WavesAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName (parameters.state.getType()))
+            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
 }
 
 //==============================================================================
