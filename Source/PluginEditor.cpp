@@ -251,12 +251,13 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     addAndMakeVisible(functionLinearRightLabel);
 
     // Mono/stereo selector switch
+    addAndMakeVisible(monoStereoSelector);
     monoStereoSelector.setSliderStyle(juce::Slider::LinearHorizontal);
-    monoStereoSelector.setRange(0, 1, 1);
+    monoStereoAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ms", monoStereoSelector));
+    //monoStereoSelector.setRange(0, 1, 1);
     monoStereoSelector.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     monoStereoSelector.setPopupDisplayEnabled(false, false, this);
-    monoStereoSelector.setValue(0);
-    addAndMakeVisible(monoStereoSelector);
+    //monoStereoSelector.setValue(0);
 
     // all listeners
     depthLeftSlider.addListener(this);
@@ -264,6 +265,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     peakTimeLeftSlider.addListener(this);
     firstFunctionLeftSlider.addListener(this);
     secondFunctionLeftSlider.addListener(this);
+    monoStereoSelector.addListener(this);
 
     // mono stereo label
     monoLabel.setText("Mono / Stereo", juce::dontSendNotification);
@@ -271,14 +273,6 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     monoLabel.setColour(juce::Label::backgroundColourId, primary);
     monoLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(monoLabel);
-    monoStereoSelector.addListener(this);
-
-    //// logo label
-    //logoLabel.setText("Muten\nAudio", juce::dontSendNotification);
-    //logoLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    //logoLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
-    //logoLabel.setJustificationType(juce::Justification::centred);
-    //addAndMakeVisible(logoLabel);
     
     addAndMakeVisible(labelDisplay);
     addAndMakeVisible(wavesDisplay);
@@ -306,7 +300,6 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
 WavesAudioProcessorEditor::~WavesAudioProcessorEditor()
 {
     setLookAndFeel(nullptr);
-
 }
 
 //==============================================================================

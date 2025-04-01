@@ -32,7 +32,7 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
                                                    juce::AudioProcessorParameter::genericParameter,
                                                    [](float value, int) { return "-" + juce::String(std::abs(value), 1) + " dB"; },
                                                    [](const juce::String& text) { return text.getFloatValue(); }),
-      std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ptL", "Peak Time", 0.2f, 0.8f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("spL", "Speed",
                                                    juce::NormalisableRange<float>(60.0f, 480.0f, 1.0f),
                                                    240.0f,
@@ -51,7 +51,7 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
                                                    juce::AudioProcessorParameter::genericParameter,
                                                    [](float value, int) { return "-" + juce::String(std::abs(value), 1) + " dB"; },
                                                    [](const juce::String& text) { return text.getFloatValue(); }),
-      std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.0f, 1.0f, 0.5f),
+      std::make_unique<juce::AudioParameterFloat>("ptR", "Peak Time", 0.2f, 0.8f, 0.5f),
       std::make_unique<juce::AudioParameterFloat>("spR", "Speed",
                                                    juce::NormalisableRange<float>(60.0f, 480.0f, 1.0f),
                                                    240.0f,
@@ -61,7 +61,8 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
                                                    [](const juce::String& text) { return text.getFloatValue(); }),
 
       std::make_unique<juce::AudioParameterInt>("ffR", "First Function", 1, 3, 1),
-      std::make_unique<juce::AudioParameterInt>("sfR", "SecondFunction", 1, 3, 1) })
+      std::make_unique<juce::AudioParameterInt>("sfR", "SecondFunction", 1, 3, 1),
+      std::make_unique<juce::AudioParameterInt>("ms", "MonoStereo", 0, 1, 1)})
 {
     depthLeftParam      = parameters.getRawParameterValue("dpL");
     peakTimeLeftParam   = parameters.getRawParameterValue("ptL");
@@ -74,6 +75,8 @@ parameters(*this, nullptr, juce::Identifier ("wavesPlugin"),
     speedRightParam      = parameters.getRawParameterValue("spR");
     firstFuncRightParam  = parameters.getRawParameterValue("ffR");
     secondFuncRightParam = parameters.getRawParameterValue("sfR");
+
+    monoStereoSwitchParam = parameters.getRawParameterValue("ms");
 }
 
 WavesAudioProcessor::~WavesAudioProcessor()
@@ -193,19 +196,21 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         buffer.clear (i, 0, buffer.getNumSamples());
 
     // get values from the parameters valueTreeState
-    auto depthLeft     = depthLeftParam->load();
+    auto depthLeft           = depthLeftParam->load();
     const auto speedLeft     = speedLeftParam->load();
     const auto peakTimeLeft  = peakTimeLeftParam->load();
 
     const auto firstFuncLeft  = juce::roundToInt (firstFuncLeftParam->load());
     const auto secondFuncLeft = juce::roundToInt (secondFuncLeftParam->load());
 
-    auto depthRight     = depthRightParam->load();
+    auto depthRight           = depthRightParam->load();
     const auto speedRight     = speedRightParam->load();
     const auto peakTimeRight  = peakTimeRightParam->load();
 
     const auto firstFuncRight  = juce::roundToInt(firstFuncRightParam->load());
     const auto secondFuncRight = juce::roundToInt(secondFuncRightParam->load());
+
+    const auto monoStereoSwitch = juce::roundToInt(monoStereoSwitchParam->load());
 
     // convert decibels to amplitude
     depthLeft  = sgn(depthLeft) * (1.0f - std::pow(10.0f, -std::abs(depthLeft) / 20.0f));
@@ -215,7 +220,7 @@ void WavesAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     const auto totalTimeLeft  = 60.0f / speedLeft;
     const auto totalTimeRight = 60.0f / speedRight;
 
-    // new version of setting parameters
+    // set all parameters
     myWaves[0].setParameters(depthLeft, totalTimeLeft, peakTimeLeft * totalTimeLeft);
     myWaves[0].updateFunctions(firstFuncLeft, secondFuncLeft);
     myWaves[1].setParameters(depthRight, totalTimeRight, peakTimeRight * totalTimeRight);

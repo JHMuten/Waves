@@ -133,6 +133,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> firstFunctionRightAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> secondFunctionRightAttachment;
 
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> monoStereoAttachment;
+
 
     MutenAudioLookAndFeel wavesLookAndFeel; 
 
