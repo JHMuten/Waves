@@ -173,7 +173,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     speedLeftSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedLeftSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     speedLeftSlider.setPopupDisplayEnabled(false, false, this);
-    speedLeftSlider.setDoubleClickReturnValue(true, 150.0f);
+    speedLeftSlider.setDoubleClickReturnValue(true, 240.0f);
     addAndMakeVisible(speedLeftSlider);
 
     addAndMakeVisible(firstFunctionLeftSlider);
@@ -223,7 +223,7 @@ WavesAudioProcessorEditor::WavesAudioProcessorEditor (WavesAudioProcessor& p, ju
     speedRightSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     speedRightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     speedRightSlider.setPopupDisplayEnabled(false, false, this);
-    speedRightSlider.setDoubleClickReturnValue(true, 150.0f);
+    speedRightSlider.setDoubleClickReturnValue(true, 240.0f);
 
     addAndMakeVisible(firstFunctionRightSlider);
     firstFunctionRightAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(vts, "ffR", firstFunctionRightSlider));
